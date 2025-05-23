@@ -6,6 +6,10 @@ root.title("Like A Knife Through Clutter")
 
 # functions that will let the buttons do something
 def item_page():
+    def back_to_main():
+        item_window.withdraw()
+        root.deiconify() # this function 'unhides' the main window
+
     def add_item():
         # function to add an item to your list ---- at the moment it will store this in a text file, this will be changed to a database later
         item_name = item_name_entry.get()
@@ -13,7 +17,7 @@ def item_page():
         item_condition = item_condition_entry.get()
         with open("items.txt", "a") as file:
             file.write(f"{item_name}, {item_price}, {item_condition}\n")
-            
+
         item_name_entry.delete(0, END)
         item_price_entry.delete(0, END)
         item_condition_entry.delete(0, END)
@@ -31,6 +35,10 @@ def item_page():
     # Title for the page placed into the header frame
     title = Label(header_frame, text="Like A Knife Through Clutter - your items", font=("papyrus", 20, "bold"))
     title.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
+
+    # button to go back to the main page
+    back_button = ttk.Button(header_frame, text="Back", command=back_to_main)
+    back_button.grid(row=0, column=1, padx=10, pady=5, sticky="NSEW")
 
     # labels and entry boxes for the items details 
     item_name_label = Label(body_frame, text="item name: ")
@@ -53,6 +61,10 @@ def item_page():
     add_item_button.grid(row=3, column=0, padx=10, pady=5, sticky="NSEW")
 
 def next_steps_page():
+    def back_to_main():
+        next_steps_window.withdraw()
+        root.deiconify() # this function 'unhides' the main window
+
     root.withdraw()
     next_steps_window = Toplevel(root)
     next_steps_window.title("Next Steps Page")
@@ -63,11 +75,19 @@ def next_steps_page():
     body_frame = ttk.LabelFrame(next_steps_window)
     body_frame.grid(row=1, column=0, padx=10, pady=10, sticky="NSEW")
 
+    # button to go back to the main page
+    back_button = ttk.Button(header_frame, text="Back", command=back_to_main)
+    back_button.grid(row=0, column=1, padx=10, pady=5, sticky="NSEW")
+
     # Title for the page placed into the header frame
     title = Label(header_frame, text="Like A Knife Through Clutter - next steps", font=("papyrus", 20, "bold"))
     title.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
 
 def progression_page():
+    def back_to_main():
+        progression_window.withdraw()
+        root.deiconify() # this function 'unhides' the main window
+
     root.withdraw()
     progression_window = Toplevel(root)
     progression_window.title("Item Page")
@@ -78,9 +98,20 @@ def progression_page():
     body_frame = ttk.LabelFrame(progression_window)
     body_frame.grid(row=1, column=0, padx=10, pady=10, sticky="NSEW")
 
+    # button to go back to the main page
+    back_button = ttk.Button(header_frame, text="Back", command=back_to_main)
+    back_button.grid(row=0, column=1, padx=10, pady=5, sticky="NSEW")
+
     # Title for the page placed into the header frame
     title = Label(header_frame, text="Like A Knife Through Clutter - progression", font=("papyrus", 20, "bold"))
     title.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
+
+    def display_item_summary():
+        with open("items.txt", "r") as file:
+            items = file.readlines()
+            for item in items:
+                item_summary = Label(body_frame, text=item.strip())
+                item_summary.grid(row=0, column=0, padx=10, pady=5, sticky="NSEW")
 
 # frames for the page
 header_frame = ttk.LabelFrame(root) 

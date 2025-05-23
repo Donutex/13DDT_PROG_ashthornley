@@ -1,0 +1,4 @@
+Comic Books, 100 , good
+test, 10, good
+cards, 500, near mint
+boxes, 4, bad
