@@ -67,14 +67,48 @@ def item_page():
     add_item_button = ttk.Button(body_frame_left, text="Add Item", command=add_item) 
     add_item_button.grid(row=4, column=0, padx=10, pady=5, sticky="NSEW")
 
-    def edit_item():
-        # function to edit an existing item in your list
+    # Labels and entry boxes for editing an existing item  
+    edit_item_label = Label(body_frame_right, text="Edit an existing item", font=("arial", 16, "bold"))
+    edit_item_label.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
 
-        with open("items.txt", "r") as file:
-            items = file.readlines()
-            for item in items:
-                x = item.split(", ")[0] 
-                print = x 
+    edit_name_label = Label(body_frame_right, text="new item name: ")
+    edit_name_label.grid(row=2, column=0, padx=10, pady=5, sticky="NSEW")
+    edit_name_entry = Entry(body_frame_right)
+    edit_name_entry.grid(row=2, column=1, padx=10, pady=5, sticky="NSEW")
+
+    edit_price_label = Label(body_frame_right, text="new estimated value: ")
+    edit_price_label.grid(row=3, column=0, padx=10, pady=5, sticky="NSEW")
+    edit_price_entry = Entry(body_frame_right)
+    edit_price_entry.grid(row=3, column=1, padx=10, pady=5, sticky="NSEW")
+
+    edit_condition_label = Label(body_frame_right, text="new condition: ")
+    edit_condition_label.grid(row=4, column=0, padx=10, pady=5, sticky="NSEW")
+    edit_condition_entry = Entry(body_frame_right)
+    edit_condition_entry.grid(row=4, column=1, padx=10, pady=5, sticky="NSEW")
+
+    # dropdown menu to select an item to edit
+    with open("items.txt", "r") as file:
+        items = file.readlines()
+    selected_item = ttk.Combobox(body_frame_right, state="readonly")
+    selected_item['values'] = items
+    selected_item.grid(row=1, column=0, padx=10, pady=3)
+
+    def edit_item():
+        selected = selected_item.get()
+        new_name = edit_name_entry.get()
+        new_price = edit_price_entry.get()
+        new_condition = edit_condition_entry.get()
+        if selected and new_name and new_price and new_condition:
+            with open("items.txt", "r") as file:
+                items = file.readlines()
+            with open("items.txt", "w") as file:
+                pass
+            
+
+
+        
+
+
             
 
     # edit an existing item
