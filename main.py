@@ -1,10 +1,11 @@
 from tkinter import * 
 from tkinter import ttk 
+import tkintermapview
 
 root = Tk()
 root.title("Like A Knife Through Clutter")
 
-# functions that will let the buttons do something
+# functions that will let the buttons do something and lead to new pages
 def item_page():
     def back_to_main():
         item_window.withdraw()
@@ -17,10 +18,13 @@ def item_page():
         item_condition = item_condition_entry.get()
         with open("items.txt", "a") as file:
             file.write(f"{item_name}, {item_price}, {item_condition}\n")
-
         item_name_entry.delete(0, END)
         item_price_entry.delete(0, END)
         item_condition_entry.delete(0, END)
+        # updating the dropdown menu with the new items
+        with open("items.txt", "r") as file: 
+            items = file.readlines()
+        selected_item['values'] = items
         
     root.withdraw()
     item_window = Toplevel(root)
@@ -67,9 +71,17 @@ def item_page():
     add_item_button = ttk.Button(body_frame_left, text="Add Item", command=add_item) 
     add_item_button.grid(row=4, column=0, padx=10, pady=5, sticky="NSEW")
 
+    
     # Labels and entry boxes for editing an existing item  
     edit_item_label = Label(body_frame_right, text="Edit an existing item", font=("arial", 16, "bold"))
     edit_item_label.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
+
+    # dropdown menu to select an item to edit
+    with open("items.txt", "r") as file:
+        items = file.readlines()
+    selected_item = ttk.Combobox(body_frame_right, state="readonly")
+    selected_item['values'] = items
+    selected_item.grid(row=1, column=0, padx=10, pady=3)
 
     edit_name_label = Label(body_frame_right, text="new item name: ")
     edit_name_label.grid(row=2, column=0, padx=10, pady=5, sticky="NSEW")
@@ -86,13 +98,6 @@ def item_page():
     edit_condition_entry = Entry(body_frame_right)
     edit_condition_entry.grid(row=4, column=1, padx=10, pady=5, sticky="NSEW")
 
-    # dropdown menu to select an item to edit
-    with open("items.txt", "r") as file:
-        items = file.readlines()
-    selected_item = ttk.Combobox(body_frame_right, state="readonly")
-    selected_item['values'] = items
-    selected_item.grid(row=1, column=0, padx=10, pady=3)
-
     def edit_item():
         selected = selected_item.get()
         new_name = edit_name_entry.get()
@@ -102,16 +107,25 @@ def item_page():
             with open("items.txt", "r") as file:
                 items = file.readlines()
             with open("items.txt", "w") as file:
-                pass
-            
+                for item in items:
+                    if item.strip() == selected.strip():
+                        file.write(f"{new_name}, {new_price}, {new_condition}\n")
+                    else:
+                        file.write(item)
+        edit_name_entry.delete(0, END)
+        edit_price_entry.delete(0, END)
+        edit_condition_entry.delete(0, END)
+        selected_item.set('Successfully edited!')
 
+        # Update the dropdown menu with the new items
+        with open("items.txt", "r") as file: 
+            items = file.readlines()
+        selected_item['values'] = items
+        selected_item.set('Successfully edited!')
 
-        
-
-
-            
-
-    # edit an existing item
+    # button to edit an existing item
+    edit_item_button = ttk.Button(body_frame_right, text="edit item", command=edit_item)
+    edit_item_button.grid(row=5, column=0, padx=10, pady=5, sticky="NSEW")
 
 def next_steps_page():
     def back_to_main():
@@ -135,6 +149,11 @@ def next_steps_page():
     # Title for the page placed into the header frame
     title = Label(header_frame, text="Like A Knife Through Clutter - next steps", font=("papyrus", 20, "bold"))
     title.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
+
+    # map that shows the location of nearby useful stores / places to help dispose of your items.
+    local_map = tkintermapview.TkinterMapView(body_frame, width=600, height=400, corner_radius=0)
+    local_map.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW") # Setting the map to show auckland
+    local_map.set_zoom(12)   
 
 def progression_page():
     def back_to_main():
@@ -176,7 +195,11 @@ def progression_page():
     # this opens the items file, reads it line by line, splits each line by the commas, looks at the second item (price), and adds them together
     with open("items.txt", "r") as file:
         items = file.readlines()
-        total_value = sum(float(item.split(", ")[1]) for item in items if item.strip())
+        total_value = 0
+        for i in range(len(items)):
+            items[i] = items[i].strip()
+            value = float(items[i].split(", ")[1])
+            total_value += value
         total_value_label = Label(body_frame_right, text=f"Total estimated value of items: ${total_value:.2f}") # the :.2f make the number a float with 2 decimals 
         total_value_label.grid(row=1, column=0, padx=10, pady=5, sticky="NSEW")
 
