@@ -5,3 +5,4 @@ boxes, 4, bad
 Test item , 1000, good
 stats homework, 1, perfect
 macdonalds, 50, bad
+cricket bat, 25, old

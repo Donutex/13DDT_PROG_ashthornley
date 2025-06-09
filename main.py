@@ -71,7 +71,7 @@ def item_page():
     add_item_button = ttk.Button(body_frame_left, text="Add Item", command=add_item) 
     add_item_button.grid(row=4, column=0, padx=10, pady=5, sticky="NSEW")
 
-    
+
     # Labels and entry boxes for editing an existing item  
     edit_item_label = Label(body_frame_right, text="Edit an existing item", font=("arial", 16, "bold"))
     edit_item_label.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
@@ -141,6 +141,8 @@ def next_steps_page():
     header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
     body_frame = ttk.LabelFrame(next_steps_window)
     body_frame.grid(row=1, column=0, padx=10, pady=10, sticky="NSEW")
+    text_frame = ttk.LabelFrame(body_frame)
+    text_frame.grid(row=2, column=0, padx=10, pady=10, sticky="NSEW")
 
     # button to go back to the main page
     back_button = ttk.Button(header_frame, text="Back", command=back_to_main)
@@ -150,10 +152,35 @@ def next_steps_page():
     title = Label(header_frame, text="Like A Knife Through Clutter - next steps", font=("papyrus", 20, "bold"))
     title.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
 
+    # description for the map
+    map_description = Label(body_frame, text="If you're struggling to find a place to dispose of your items, use the map below to find nearby stores and places that can help you.")
+    map_description.grid(row=0, column=0, padx=10, pady=5, sticky="NSEW")
+
     # map that shows the location of nearby useful stores / places to help dispose of your items.
     local_map = tkintermapview.TkinterMapView(body_frame, width=600, height=400, corner_radius=0)
-    local_map.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW") # Setting the map to show auckland
-    local_map.set_zoom(12)   
+    local_map.grid(row=1, column=0, padx=10, pady=10, sticky="NSEW")    
+    local_map.set_position(-36.852095, 174.763180)
+    local_map.set_zoom(10)
+
+    locations = [
+    {"name": "Mt Eden Family Store", "lat": -36.8770, "lon": 174.6270},
+    {"name": "New Lynn Family Store", "lat": -36.9090, "lon": 174.6840},
+    {"name": "Howick Family Store", "lat": -36.8900, "lon": 174.9300},
+    {"name": "Mt Wellington Family Store", "lat": -36.9180, "lon": 174.8300},
+    {"name": "Royal Oak Family Store", "lat": -36.9060, "lon": 174.7700},
+    ]
+    for location in locations:
+        local_map.set_marker(location["lat"], location["lon"], text=location["name"])
+
+    # instructions for what to do with the users items
+    # list with all the items (this is a placeholder and will be improved later)
+    with open("items.txt", "r") as file:
+        items = file.readlines()
+    for index, item in enumerate(items):
+        items = item.strip()
+        name = item.split(", ")[0]
+        item_name = Label(text_frame, text=f"Item {index+1}: {name}")
+        item_name.grid(row=index+2, column=0, padx=10, pady=5, sticky="NSEW")
 
 def progression_page():
     def back_to_main():
@@ -211,6 +238,8 @@ header_frame = ttk.LabelFrame(root)
 header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
 body_frame = ttk.LabelFrame(root)
 body_frame.grid(row=1, column=0, padx=10, pady=10, sticky="NSEW")
+declutter_frame = ttk.LabelFrame(body_frame)
+declutter_frame.grid(row=2, column=0, padx=10, pady=10, sticky="NSEW")
 
 # Title for the page placed into the header frame
 title = Label(header_frame, text="Like A Knife Through Clutter", font=("papyrus", 20, "bold"))
@@ -225,5 +254,30 @@ next_steps_page_button.pack(padx=10, pady=5)
 
 progression_page_button = ttk.Button(body_frame, text="Progression", command=progression_page)
 progression_page_button.pack(padx=10, pady=5)
+
+# dropdown menu to select an item to edit
+with open("items.txt", "r") as file:
+    items = file.readlines()
+selected_item = ttk.Combobox(declutter_frame, state="readonly")
+selected_item['values'] = items
+selected_item.grid(row=0, column=0, padx=10, pady=3)
+
+def declutter_item():
+    selected = selected_item.get()
+    if selected:
+        with open("items.txt", "r") as file:
+            items = file.readlines()
+        with open("items.txt", "w") as file:
+            for item in items:
+                if item.strip() != selected.strip():
+                    file.write(item)
+        selected_item.set('Successfully decluttered!')
+        number_of_decluttered_items += 1  # Placeholder for the number of decluttered items
+        # Update the dropdown menu with the new items
+        with open("items.txt", "r") as file: 
+            items = file.readlines()
+        selected_item['values'] = items
+    else:
+        selected_item.set('Please select an item to declutter.')
 
 root.mainloop()
