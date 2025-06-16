@@ -1,8 +1,4 @@
-video games, 150, good
-amongus potion, 500, good
-cards, 500, near mint
-boxes, 4, bad
-Test item , 1000, good
-stats homework, 1, perfect
-macdonalds, 50, bad
-cricket bat, 25, old
+test item, 5, good
+test item 2, 5, good
+test item 4, 5, good
+test item 5, 5, good
