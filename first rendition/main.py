@@ -273,23 +273,6 @@ def progression_page():
     declutter_button = ttk.Button(progression_declutter_frame, text="Declutter Item", command=declutter_item)
     declutter_button.grid(row=1, column=1, padx=10, pady=5, sticky="NSEW")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # frames for the page
 header_frame = ttk.LabelFrame(root) 
 header_frame.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
