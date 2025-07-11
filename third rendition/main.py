@@ -16,13 +16,13 @@ def item_page():
         item_name = item_name_entry.get()
         item_price = item_price_entry.get()
         item_condition = item_condition_entry.get()
-        with open("first rendition\items.txt", "a") as file:
+        with open("items.txt", "a") as file:
             file.write(f"{item_name}, {item_price}, {item_condition}\n")
         item_name_entry.delete(0, END)
         item_price_entry.delete(0, END)
         item_condition_entry.delete(0, END)
         # updating the dropdown menu with the new items
-        with open("first rendition\items.txt", "r") as file: 
+        with open("items.txt", "r") as file: 
             items = file.readlines()
         selected_item['values'] = items
         
@@ -77,7 +77,7 @@ def item_page():
     edit_item_label.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
 
     # dropdown menu to select an item to edit
-    with open("first rendition\items.txt", "r") as file:
+    with open("items.txt", "r") as file:
         items = file.readlines()
     selected_item = ttk.Combobox(body_frame_right, state="readonly")
     selected_item['values'] = items
@@ -104,9 +104,9 @@ def item_page():
         new_price = edit_price_entry.get()
         new_condition = edit_condition_entry.get()
         if selected and new_name and new_price and new_condition:
-            with open("first rendition\items.txt", "r") as file:
+            with open("items.txt", "r") as file:
                 items = file.readlines()
-            with open("first rendition\items.txt", "w") as file:
+            with open("items.txt", "w") as file:
                 for item in items:
                     if item.strip() == selected.strip():
                         file.write(f"{new_name}, {new_price}, {new_condition}\n")
@@ -118,7 +118,7 @@ def item_page():
         selected_item.set('Successfully edited!')
 
         # Update the dropdown menu with the new items
-        with open("first rendition\items.txt", "r") as file: 
+        with open("items.txt", "r") as file: 
             items = file.readlines()
         selected_item['values'] = items
         selected_item.set('Successfully edited!')
@@ -241,14 +241,14 @@ def progression_page():
     progression_description.grid(row=0, column=0, padx=10, pady=5, sticky="NSEW")
 
     # List of items that the user owns 
-    with open("first rendition\items.txt", "r") as file:
+    with open("items.txt", "r") as file:
         items = file.readlines()
         for i in range(len(items)):
             item_summary = Label(body_frame_left, text=f"Item {i+1}: {items[i].strip()}")
             item_summary.grid(row=i, column=0, padx=10, pady=5, sticky="NSEW")
 
     # this opens the items file, reads it line by line, splits each line by the commas, looks at the second item (price), and adds them together
-    with open("first rendition\items.txt", "r") as file:
+    with open("items.txt", "r") as file:
         items = file.readlines()
         total_value = 0
         for i in range(len(items)):
@@ -263,7 +263,7 @@ def progression_page():
     declutter_label.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
 
     # dropdown menu to show / select an item to declutter
-    with open("first rendition\items.txt", "r") as file:
+    with open("items.txt", "r") as file:
         items = file.readlines()
     selected_item = ttk.Combobox(progression_declutter_frame, state="readonly")
     selected_item['values'] = items
