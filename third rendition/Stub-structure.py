@@ -1,9 +1,11 @@
 from tkinter import * 
 from tkinter import ttk
+import functions
+import sqlite3
 
 class LoginPage:
     def __init__(self):
-        self.root - Tk()
+        self.root = Tk()
         self.root.title("Login Page")
         self.root.geometry("600x800")
         self.root.resizable(False, False)
