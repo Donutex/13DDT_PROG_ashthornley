@@ -1,54 +1,83 @@
 from tkinter import * 
 from tkinter import ttk 
 import tkintermapview
+import functions
 
 class LoginPage:
-    def __init__(self):
+    def __init__(self, conn):
         self.root = Tk()
+        self.conn = conn
         self.root.title("Login Page")
         self.root.geometry("600x800")
         self.root.resizable(False, False)
         self.create_widgets()
-
+    
     def create_widgets(self):
         # Frame for the login stuff
-        login_frame = ttk.LabelFrame(self.root, text="Login")
-        login_frame.pack(padx=10, pady=10, fill=BOTH, expand=True)
+        self.login_frame = ttk.LabelFrame(self.root, text="Login")
+        self.login_frame.pack(padx=10, pady=10, fill=BOTH, expand=True)
+
+        # Frame for the sign-up stuff
+        self.signup_frame = ttk.LabelFrame(self.root, text="Sign Up")
+        self.signup_frame.pack(padx=10, pady=10, fill=BOTH, expand=True)
+
+        # title + subtitle
+        self.title_label = ttk.Label(self.login_frame, text="Like A Knife Through Clutter", font=("Arial", 16))
+        self.title_label.pack(anchor=CENTER, padx=10, pady=10)
+        self.subtitle_label = ttk.Label(self.login_frame, text="Login to your account to get started", font=("Arial", 12))
+        self.subtitle_label.pack(anchor=CENTER, padx=10, pady=10)
 
         # Username label and entry
-        ttk.Label(text="Username:").pack(anchor=CENTER, padx=10, pady=10)
-        self.username_entry = ttk.Entry(self.root)
+        self.username_label = ttk.Label(self.login_frame, text="Username:")
+        self.username_label.pack(anchor=CENTER, padx=10, pady=10)
+        self.username_entry = ttk.Entry(self.login_frame)
         self.username_entry.pack(anchor=CENTER, padx=10, pady=10)
 
         # Password label and entry
-        ttk.Label(text="Password:").pack(anchor=CENTER, padx=10, pady=10)
-        self.password_entry = ttk.Entry(self.root, show='*')
+        self.password_label = ttk.Label(self.login_frame, text="Password:")
+        self.password_label.pack(anchor=CENTER, padx=10, pady=10)
+        self.password_entry = ttk.Entry(self.login_frame, show='*')
         self.password_entry.pack(anchor=CENTER, padx=10, pady=10)
 
         # Login button
-        self.login_button = ttk.Button(text="Login", command=self.login_button)
+        self.login_button = ttk.Button(self.login_frame, text="Login", command=self.login_button)
         self.login_button.pack(anchor=CENTER, padx=10, pady=10)
 
+        # sign up subtitle
+        self.signup_subtitle_label = ttk.Label(self.signup_frame, text="Don't have an account? Sign up here", font=("Arial", 12))
+        self.signup_subtitle_label.pack(anchor=CENTER, padx=10, pady=10)
+
+        # Sign Up button
+        self.signup_button = ttk.Button(self.signup_frame, text="Sign Up", command=self.signup_page_button)
+        self.signup_button.pack(anchor=CENTER, padx=10, pady=10)
+
     def login_button(self):
-        username = self.username_entry.get()
-        password = self.password_entry.get()
+        self.username = self.username_entry.get()
+        self.password = self.password_entry.get()
         
+        #CHANGE THIS TO ACTUALLT CHECK THE DATABASE LATER
         # For demonstration, we will just print the credentials
         # In a real application, you would verify these credentials
-        print(f"Username: {username}, Password: {password}")
+        print(f"Username: {self.username}, Password: {self.password}")
         
         # Clear the entries after login attempt
         self.username_entry.delete(0, END)
         self.password_entry.delete(0, END)
 
-        # Optionally, you can close the login window or proceed to the next page
+        # opening the main page with the same database connection
         self.root.destroy()
-        MainPage().run()
+        MainPage(self.conn).run()
+
+    def signup_page_button(self):
+        # opening the sign up page also with the same connection
+        self.root.destroy()
+        SignUpPage(self.conn).run()
 
 
 class SignUpPage:
-    def __init__(self):
+    def __init__(self, conn):
         self.root = Tk()
+        self.conn = conn
         self.root.title("Sign Up Page")
         self.root.geometry("600x800")
         self.root.resizable(False, False)
@@ -57,36 +86,37 @@ class SignUpPage:
     def create_widgets(self):
         # Create a frame for the sign-up form
         signup_frame = ttk.LabelFrame(self.root, text="Sign Up")
-        signup_frame.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
+        signup_frame.pack(padx=10, pady=10, fill=BOTH, expand=True)
 
         # Username label and entry
-        ttk.Label(signup_frame, text="Username:").grid(row=0, column=0, padx=5, pady=5)
-        self.username_entry = ttk.Entry(signup_frame)
-        self.username_entry.grid(row=0, column=1, padx=5, pady=5)
+        self.signup_username_label = ttk.Label(signup_frame, text="Username:")
+        self.signup_username_label.pack(anchor=CENTER, padx=10, pady=10)
+        self.signup_username_entry = ttk.Entry(signup_frame)
+        self.signup_username_entry.pack(anchor=CENTER, padx=10, pady=10)
 
         # Password label and entry
-        ttk.Label(signup_frame, text="Password:").grid(row=1, column=0, padx=5, pady=5)
-        self.password_entry = ttk.Entry(signup_frame, show='*')
-        self.password_entry.grid(row=1, column=1, padx=5, pady=5)
+        self.signup_password_label = ttk.Label(signup_frame, text="Password:")
+        self.signup_password_label.pack(anchor=CENTER, padx=10, pady=10)
+        self.signup_password_entry = ttk.Entry(signup_frame, show='*')
+        self.signup_password_entry.pack(anchor=CENTER, padx=10, pady=10)
 
         # Sign Up button
         self.signup_button = ttk.Button(signup_frame, text="Sign Up", command=self.signup_button)
-        self.signup_button.grid(row=2, columnspan=2, pady=10)
+        self.signup_button.pack(anchor=CENTER, padx=10, pady=10)
 
     def signup_button(self):
-        username = self.username_entry.get()
-        password = self.password_entry.get()
-        
-        # For demonstration, we will just print the credentials
-        # In a real application, you would save these credentials
-        print(f"Username: {username}, Password: {password}")
-        
-        # Clear the entries after sign-up attempt
-        self.username_entry.delete(0, END)
-        self.password_entry.delete(0, END)
+        username = self.signup_username_entry.get()
+        password = self.signup_password_entry.get()
+        # function from the function py file
+        functions.create_login(self.conn, username, password)
+        # clearing the entries after sign up
+        self.signup_username_entry.delete(0, END)
+        self.signup_password_entry.delete(0, END)
 
-        # Optionally, you can close the sign-up window or proceed to the next page
-        self.root.destroy()
+    def run(self):
+        self.root.mainloop()
+
+
 
 
 class MainPage:

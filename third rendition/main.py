@@ -10,7 +10,7 @@ def main():
     functions.create_login_table(conn)
 
     # Initialize the Login Page
-    login_page = LoginPage()
+    login_page = LoginPage(conn)
     
     # Start the Tkinter main loop
     login_page.root.mainloop()
