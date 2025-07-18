@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk 
 import tkintermapview
 import functions
+import messagebox
 
 class LoginPage:
     def __init__(self, conn):
@@ -54,19 +55,17 @@ class LoginPage:
     def login_button(self):
         self.username = self.username_entry.get()
         self.password = self.password_entry.get()
-        
-        #CHANGE THIS TO ACTUALLT CHECK THE DATABASE LATER
-        # For demonstration, we will just print the credentials
-        # In a real application, you would verify these credentials
-        print(f"Username: {self.username}, Password: {self.password}")
-        
-        # Clear the entries after login attempt
-        self.username_entry.delete(0, END)
-        self.password_entry.delete(0, END)
+        # this function returns true or false so you can use it in an if statement
+        if functions.check_login(self.conn, self.username, self.password):
+            # Login successful
+            self.root.destroy()
+            MainPage(self.conn).run()
 
-        # opening the main page with the same database connection
-        self.root.destroy()
-        MainPage(self.conn).run()
+        else:
+            # Login failed
+            messagebox.showerror("Login Failed", "Incorrect username or password. Please try again or sign up.")
+            self.username_entry.delete(0, END)
+            self.password_entry.delete(0, END)
 
     def signup_page_button(self):
         # opening the sign up page also with the same connection
@@ -104,6 +103,10 @@ class SignUpPage:
         self.signup_button = ttk.Button(signup_frame, text="Sign Up", command=self.signup_button)
         self.signup_button.pack(anchor=CENTER, padx=10, pady=10)
 
+        # back to login button
+        self.back_to_login_button = ttk.Button(signup_frame, text="Back to Login", command=self.back_to_login_button)
+        self.back_to_login_button.pack(anchor=CENTER, padx=10, pady=10)
+
     def signup_button(self):
         username = self.signup_username_entry.get()
         password = self.signup_password_entry.get()
@@ -112,16 +115,19 @@ class SignUpPage:
         # clearing the entries after sign up
         self.signup_username_entry.delete(0, END)
         self.signup_password_entry.delete(0, END)
+    
+    def back_to_login_button(self):
+        self.root.destroy()
+        LoginPage(self.conn).run()
 
     def run(self):
         self.root.mainloop()
 
 
-
-
 class MainPage:
-    def __init__(self):
+    def __init__(self, conn):
         self.root = Tk()
+        self.conn = conn
         self.root.title("Main Page")
         self.root.geometry("600x800")
         self.root.resizable(False, False)

@@ -28,6 +28,13 @@ def create_login(conn, username, password):
     cursor.execute("INSERT INTO login1 (username, password) VALUES (?, ?)", (username, password))
     conn.commit()
 
+# this function checks to see if the user exists in the login info table
+def check_login(conn, username, password):
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM login1 WHERE username = ? AND password = ?", (username, password))
+    result = cursor.fetchone()
+    return result is not None
+
 def add_item(conn, name):
     cursor = conn.cursor()
     cursor.execute("INSERT INTO items1 (name) VALUES (?)", (name,))
