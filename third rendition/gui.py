@@ -16,11 +16,11 @@ class LoginPage:
     def create_widgets(self):
         # Frame for the login stuff
         self.login_frame = ttk.LabelFrame(self.root, text="Login")
-        self.login_frame.pack(padx=10, pady=10, fill=BOTH, expand=True)
+        self.login_frame.pack(padx=10, pady=10, fill=BOTH)
 
         # Frame for the sign-up stuff
         self.signup_frame = ttk.LabelFrame(self.root, text="Sign Up")
-        self.signup_frame.pack(padx=10, pady=10, fill=BOTH, expand=True)
+        self.signup_frame.pack(padx=10, pady=10, fill=BOTH)
 
         # title + subtitle
         self.title_label = ttk.Label(self.login_frame, text="Like A Knife Through Clutter", font=("Arial", 16))
@@ -59,7 +59,7 @@ class LoginPage:
         if functions.check_login(self.conn, self.username, self.password):
             # Login successful
             self.root.destroy()
-            MainPage(self.conn).run()
+            MainPage(self.conn, self.username).run()
 
         else:
             # Login failed
@@ -85,7 +85,7 @@ class SignUpPage:
     def create_widgets(self):
         # Create a frame for the sign-up form
         signup_frame = ttk.LabelFrame(self.root, text="Sign Up")
-        signup_frame.pack(padx=10, pady=10, fill=BOTH, expand=True)
+        signup_frame.pack(padx=10, pady=10, fill=BOTH)
 
         # Username label and entry
         self.signup_username_label = ttk.Label(signup_frame, text="Username:")
@@ -125,37 +125,49 @@ class SignUpPage:
 
 
 class MainPage:
-    def __init__(self, conn):
+    def __init__(self, conn, username):
         self.root = Tk()
         self.conn = conn
+        self.username = username
         self.root.title("Main Page")
         self.root.geometry("600x800")
         self.root.resizable(False, False)
         self.create_widgets()
 
     def create_widgets(self):
-        # Create a frame for the main content
-        main_frame = ttk.LabelFrame(self.root, text="Main Page")
-        main_frame.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
+        # frames for the page
+        title_frame = ttk.LabelFrame(self.root)
+        title_frame.pack(padx=10, pady=10, fill=BOTH)
+        body_frame = ttk.LabelFrame(self.root)
+        body_frame.pack(padx=10, pady=10, fill=BOTH)
+        items_frame = ttk.LabelFrame(body_frame)
+        items_frame.pack(padx=10, pady=10, fill=BOTH)
+        progress_frame =  ttk.LabelFrame(body_frame)
+        progress_frame.pack(padx=10, pady=10, fill=BOTH)
+        next_steps_frame = ttk.LabelFrame(body_frame)
+        next_steps_frame.pack(padx=10, pady=10, fill=BOTH)
 
-        # Add a label
-        ttk.Label(main_frame, text="Welcome to the Main Page!").grid(row=0, column=0, padx=5, pady=5)
+        # Label for the title
+        title_label = ttk.Label(title_frame, text="Like A Knife Through Clutter", font=("Papyrus", 24))
+        title_label.pack(anchor=CENTER, padx=5)
 
-        # Add a button to open a map view
-        map_button = ttk.Button(main_frame, text="Open Map", command=self.open_map)
-        map_button.grid(row=1, column=0, padx=5, pady=5)
+        # subtitle label
+        subtitle_label = ttk.Label(title_frame, text=f"Welcome back {self.username}!", font=("Arial", 15))
+        subtitle_label.pack(anchor=CENTER, padx=5, pady=5)
 
-    def open_map(self):
-        map_window = Toplevel(self.root)
-        map_window.title("Map View")
-        
-        # Create a map view
-        map_widget = tkintermapview.TkinterMapView(map_window, width=600, height=400)
-        map_widget.pack(fill=BOTH, expand=True)
-        
-        # Set a default location
-        map_widget.set_position(37.7749, -122.4194)  # Example: San Francisco coordinates
-        map_widget.set_zoom(10)
+        # body text
+        body_text = ttk.Label(body_frame, text="This is the main page of 'Like A Knife Through Clutter' where you can manage your items in order to help " \
+        " with decluttering your home.")
+        body_text.font=("Arial", 12)
+        body_text.pack(anchor=CENTER, padx=5, pady=5)
+
+        # view items button label
+        view_items_label = ttk.Label(body_frame, text="View or enter your items here:")
+        view_items_label.pack(side=LEFT, padx=5, pady=5)
+    
+        # view items button
+        view_items_button = ttk.Button(body_frame, text="View Items", command=self.view_items_button)
+        view_items_button.pack(side=LEFT, padx=5, pady=5)
 
     def run(self):
         self.root.mainloop()
