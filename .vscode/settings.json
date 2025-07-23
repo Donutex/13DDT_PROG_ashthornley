@@ -11,6 +11,7 @@
         "pady",
         "tkintermapview",
         "trademe",
-        "unhides"
+        "unhides",
+        "wraplength"
     ]
 }

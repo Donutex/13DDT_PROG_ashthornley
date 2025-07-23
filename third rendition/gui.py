@@ -115,6 +115,11 @@ class SignUpPage:
         # clearing the entries after sign up
         self.signup_username_entry.delete(0, END)
         self.signup_password_entry.delete(0, END)
+        messagebox.showinfo("Sign Up Successful", "You have successfully signed up! You can now log in.")
+        if functions.check_login(self.conn, username, password):
+            # If the login check is successful, redirect to the main page
+            self.root.destroy()
+            LoginPage(self.conn).run()
     
     def back_to_login_button(self):
         self.root.destroy()
@@ -140,6 +145,8 @@ class MainPage:
         title_frame.pack(padx=10, pady=10, fill=BOTH)
         body_frame = ttk.LabelFrame(self.root)
         body_frame.pack(padx=10, pady=10, fill=BOTH)
+        text_frame = ttk.LabelFrame(body_frame)
+        text_frame.pack(padx=10, pady=10, fill=BOTH)
         items_frame = ttk.LabelFrame(body_frame)
         items_frame.pack(padx=10, pady=10, fill=BOTH)
         progress_frame =  ttk.LabelFrame(body_frame)
@@ -156,26 +163,55 @@ class MainPage:
         subtitle_label.pack(anchor=CENTER, padx=5, pady=5)
 
         # body text
-        body_text = ttk.Label(body_frame, text="This is the main page of 'Like A Knife Through Clutter' where you can manage your items in order to help " \
-        " with decluttering your home.")
+        body_text = ttk.Label(text_frame, text="This is the main page of 'Like A Knife Through Clutter' where you can manage your items in order to help " \
+        " with decluttering your home.", wraplength=500)
         body_text.font=("Arial", 12)
         body_text.pack(anchor=CENTER, padx=5, pady=5)
 
         # view items button label
-        view_items_label = ttk.Label(body_frame, text="View or enter your items here:")
-        view_items_label.pack(side=LEFT, padx=5, pady=5)
-    
+        view_items_label = ttk.Label(items_frame, text="View or enter your items here:")
+        view_items_label.pack(anchor=CENTER, padx=5, pady=5)
         # view items button
-        view_items_button = ttk.Button(body_frame, text="View Items", command=self.view_items_button)
-        view_items_button.pack(side=LEFT, padx=5, pady=5)
+        view_items_button = ttk.Button(items_frame, text="View Items", command=self.view_items_button)
+        view_items_button.pack(anchor=CENTER, padx=5, pady=5)
+
+        # progress label
+        progress_label = ttk.Label(progress_frame, text="Your progress will be displayed here.")
+        progress_label.pack(anchor=CENTER, padx=5, pady=5)
+        # progress button
+        progress_button = ttk.Button(progress_frame, text="View Progress", command=self.view_progress_button)
+        progress_button.pack(anchor=CENTER, padx=5, pady=5)
+
+        # next steps label
+        next_steps_label = ttk.Label(next_steps_frame, text="Your next steps will be displayed here.")
+        next_steps_label.pack(anchor=CENTER, padx=5, pady=5)
+        # next steps button
+        next_steps_button = ttk.Button(next_steps_frame, text="View Next Steps", command=self.view_next_steps_button)
+        next_steps_button.pack(anchor=CENTER, padx=5, pady=5)
+
+    def view_items_button(self):
+        # Open the Create Item Page
+        self.root.destroy()
+        CreateItemPage(self.conn).run()
+
+    def view_progress_button(self):
+        # Open the Progress Page
+        self.root.destroy()
+        ProgressPage(self.conn).run()
+
+    def view_next_steps_button(self):
+        # Open the Next Steps Page
+        self.root.destroy()
+        NextStepsPage(self.conn).run()
 
     def run(self):
         self.root.mainloop()
 
 
 class CreateItemPage:
-    def __init__(self):
+    def __init__(self, conn):
         self.root = Tk()
+        self.conn = conn
         self.root.title("Create Item Page")
         self.root.geometry("600x800")
         self.root.resizable(False, False)

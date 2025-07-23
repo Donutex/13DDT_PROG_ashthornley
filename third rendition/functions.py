@@ -1,4 +1,6 @@
 import sqlite3
+from argon2 import PasswordHasher
+import messagebox
 
 # FUNCTIONS FOR THE DATABASE
 def create_item_table(conn):
@@ -25,15 +27,26 @@ def create_login_table(conn):
 # this function is used to create a new user in the login table
 def create_login(conn, username, password):
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO login1 (username, password) VALUES (?, ?)", (username, password))
+    # this scrambles the password up using an algorithm called argon2
+    hashed_password = PasswordHasher().hash(password)
+    cursor.execute("INSERT INTO login1 (username, password) VALUES (?, ?)", (username, hashed_password))
     conn.commit()
 
 # this function checks to see if the user exists in the login info table
+# it finds the user by their username, then it checks the hashed password
 def check_login(conn, username, password):
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM login1 WHERE username = ? AND password = ?", (username, password))
-    result = cursor.fetchone()
-    return result is not None
+    cursor.execute("SELECT password FROM login1 WHERE username = ?", (username,))
+    user = cursor.fetchone()
+    if user is None:
+        messagebox.showerror("Login Failed", "Incorrect username or password. Please try again or sign up.")
+    stored_password = user[0]
+    try:
+        PasswordHasher().verify(stored_password, password)
+        return True  # Login successful
+    except:
+        messagebox.showerror("Login Failed", "Incorrect username or password. Please try again or sign up.")
+
 
 def add_item(conn, name):
     cursor = conn.cursor()
