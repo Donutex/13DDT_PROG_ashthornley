@@ -8,7 +8,8 @@ def create_item_table(conn):
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS items1 (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL
+        name TEXT NOT NULL,
+        description TEXT NOT NULL
     )
     ''')
     conn.commit()
@@ -48,9 +49,9 @@ def check_login(conn, username, password):
         messagebox.showerror("Login Failed", "Incorrect username or password. Please try again or sign up.")
 
 
-def add_item(conn, name):
+def add_item(conn, name, description):
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO items1 (name) VALUES (?)", (name,))
+    cursor.execute("INSERT INTO items1 (name, description) VALUES (?, ?)", (name, description))
     conn.commit()
 
 def remove_item(conn, item_id):

@@ -192,7 +192,7 @@ class MainPage:
     def view_items_button(self):
         # Open the Create Item Page
         self.root.destroy()
-        CreateItemPage(self.conn).run()
+        CreateItemPage(self.conn, self.username).run()
 
     def view_progress_button(self):
         # Open the Progress Page
@@ -209,46 +209,65 @@ class MainPage:
 
 
 class CreateItemPage:
-    def __init__(self, conn):
+    def __init__(self, conn, username):
         self.root = Tk()
         self.conn = conn
+        self.username = username
         self.root.title("Create Item Page")
         self.root.geometry("600x800")
         self.root.resizable(False, False)
         self.create_widgets()
 
     def create_widgets(self):
-        # Create a frame for the item creation form
-        item_frame = ttk.LabelFrame(self.root, text="Create Item")
-        item_frame.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
+        # Frames for the page
+        title_frame = ttk.LabelFrame(self.root)
+        title_frame.pack(padx=10, pady=10, fill=BOTH)
+        text_frame = ttk.LabelFrame(self.root)
+        text_frame.pack(padx=10, pady=10, fill=BOTH)
+        item_management_frame = ttk.LabelFrame(self.root, text="Item Management")
+        item_management_frame.pack(padx=10, pady=10, fill=BOTH)
+        item_form_creation_frame = ttk.LabelFrame(self.root, text="Create Item")
+        item_form_creation_frame.pack(padx=10, pady=10, fill=BOTH)
+
+        # Label for the title
+        title_label = ttk.Label(title_frame, text="Like A Knife Through Clutter", font=("Papyrus", 24))
+        title_label.pack(anchor=CENTER, padx=5)
+
+        # subtitle label
+        subtitle_label = ttk.Label(title_frame, text=f"{self.username}'s items", font=("Arial", 15))
+        subtitle_label.pack(anchor=CENTER, padx=5, pady=5)
+
+        # body text
+        body_text = ttk.Label(text_frame, text="This is the item management page of 'Like A Knife Through Clutter' where you can create, edit and view your items." \
+        " use the methods below to add items and start.", wraplength=500)
+        body_text.font=("Arial", 12)
+        body_text.pack(anchor=CENTER, padx=5, pady=5)
 
         # Item name label and entry
-        ttk.Label(item_frame, text="Item Name:").grid(row=0, column=0, padx=5, pady=5)
-        self.item_name_entry = ttk.Entry(item_frame)
-        self.item_name_entry.grid(row=0, column=1, padx=5, pady=5)
+        ttk.Label(item_form_creation_frame, text="Item Name:").grid(row=0, column=0, padx=5, pady=5)
+        self.item_name_entry = ttk.Entry(item_form_creation_frame)
+        self.item_name_entry.pack(padx=10, pady=10, fill=BOTH)
 
         # Item description label and entry
-        ttk.Label(item_frame, text="Description:").grid(row=1, column=0, padx=5, pady=5)
-        self.item_description_entry = ttk.Entry(item_frame)
-        self.item_description_entry.grid(row=1, column=1, padx=5, pady=5)
+        ttk.Label(item_form_creation_frame, text="Description:").grid(row=1, column=0, padx=5, pady=5)
+        self.item_description_entry = ttk.Entry(item_form_creation_frame)
+        self.item_description_entry.pack(padx=10, pady=10, fill=BOTH)
 
         # Create Item button
-        self.create_item_button = ttk.Button(item_frame, text="Create Item", command=self.create_item_button)
-        self.create_item_button.grid(row=2, columnspan=2, pady=10)
+        self.create_item_button = ttk.Button(item_form_creation_frame, text="Create Item", command=self.create_item_button)
+        self.create_item_button.pack(padx=10, pady=10, fill=BOTH)
 
     def create_item_button(self):
         item_name = self.item_name_entry.get()
         item_description = self.item_description_entry.get()
-        
-        # For demonstration, we will just print the item details
-        print(f"Item Name: {item_name}, Description: {item_description}")
-        
-        # Clear the entries after item creation attempt
+        if functions.add_item(self.conn, item_name, item_description):
+            messagebox.showinfo("Item Created", f"Item '{item_name}' has been created successfully.")
+        else:
+            messagebox.showerror("Failed to create item. Please try again.")
+        # empty the text boxes
         self.item_name_entry.delete(0, END)
         self.item_description_entry.delete(0, END)
 
-        # Optionally, you can close the item creation window or proceed to the next page
-        self.root.destroy()
 
 
 class ProgressPage:
