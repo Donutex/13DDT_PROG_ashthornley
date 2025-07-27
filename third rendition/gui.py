@@ -231,7 +231,11 @@ class CreateItemPage:
 
         # Label for the title
         title_label = ttk.Label(title_frame, text="Like A Knife Through Clutter", font=("Papyrus", 24))
-        title_label.pack(anchor=CENTER, padx=5)
+        title_label.pack(anchor=RIGHT, padx=10, pady=5)
+
+        # back to main page button
+        back_to_main_button = ttk.Button(title_frame, text="Back to Main Page", command=self.return_to_main_button)
+        back_to_main_button.pack(anchor=LEFT, padx=10, pady=5)
 
         # subtitle label
         subtitle_label = ttk.Label(title_frame, text=f"{self.username}'s items", font=("Arial", 15))
@@ -243,19 +247,37 @@ class CreateItemPage:
         body_text.font=("Arial", 12)
         body_text.pack(anchor=CENTER, padx=5, pady=5)
 
+        # Item management label
+        item_management_label = ttk.Label(item_management_frame, text="Manage your items here:")
+        item_management_label.pack(anchor=LEFT, padx=10, pady=5)
+
+        # View created items button
+        view_items_button = ttk.Button(item_management_frame, text="View Items", command=view_items_button)
+        view_items_button.pack(anchor=RIGHT, padx=10, pady=5)
+
         # Item name label and entry
-        ttk.Label(item_form_creation_frame, text="Item Name:").grid(row=0, column=0, padx=5, pady=5)
+        ttk.Label(item_form_creation_frame, text="Item Name:").pack(anchor=CENTER, padx=10, pady=10)
         self.item_name_entry = ttk.Entry(item_form_creation_frame)
         self.item_name_entry.pack(padx=10, pady=10, fill=BOTH)
 
         # Item description label and entry
-        ttk.Label(item_form_creation_frame, text="Description:").grid(row=1, column=0, padx=5, pady=5)
+        ttk.Label(item_form_creation_frame, text="Description:").pack(anchor=CENTER, padx=10, pady=10)
         self.item_description_entry = ttk.Entry(item_form_creation_frame)
         self.item_description_entry.pack(padx=10, pady=10, fill=BOTH)
 
         # Create Item button
         self.create_item_button = ttk.Button(item_form_creation_frame, text="Create Item", command=self.create_item_button)
         self.create_item_button.pack(padx=10, pady=10, fill=BOTH)
+
+    def return_to_main_button(self):
+        # Return to the main page
+        self.root.destroy()
+        MainPage(self.conn, self.username).run()
+
+    def view_items_button(self):
+        # Open the View Items Page
+        self.root.destroy()
+        ViewItemsPage(self.conn).run()
 
     def create_item_button(self):
         item_name = self.item_name_entry.get()
@@ -268,6 +290,31 @@ class CreateItemPage:
         self.item_name_entry.delete(0, END)
         self.item_description_entry.delete(0, END)
 
+class ViewItemsPage:
+    def __init__(self, conn):
+        self.conn = conn
+        self.root = Tk()
+        self.root.title("View Items Page")
+        self.root.geometry("600x800")
+        self.root.resizable(False, False)
+        self.create_widgets()
+
+    def create_widgets(self):
+        # frames for this page
+        title_frame = ttk.LabelFrame(self.root)
+        title_frame.pack(padx=10, pady=10, fill=BOTH)
+        items_frame = ttk.LabelFrame(self.root)
+        items_frame.pack(padx=10, pady=10, fill=LEFT)
+        item_management_frame = ttk.LabelFrame(self.root, text="Item Management")
+        item_management_frame.pack(padx=10, pady=10, fill=RIGHT)
+
+        # Label for the title
+        title_label = ttk.Label(title_frame, text="Like A Knife Through Clutter", font=("Papyrus", 24))
+        title_label.pack(anchor=RIGHT, padx=10, pady=5)
+
+        # back to main page button
+        back_to_main_button = ttk.Button(title_frame, text="Back to Main Page", command=self.return_to_main_button)
+        back_to_main_button.pack(anchor=LEFT, padx=10, pady=5)
 
 
 class ProgressPage:
