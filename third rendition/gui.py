@@ -229,13 +229,13 @@ class CreateItemPage:
         item_form_creation_frame = ttk.LabelFrame(self.root, text="Create Item")
         item_form_creation_frame.pack(padx=10, pady=10, fill=BOTH)
 
-        # Label for the title
-        title_label = ttk.Label(title_frame, text="Like A Knife Through Clutter", font=("Papyrus", 24))
-        title_label.pack(anchor=RIGHT, padx=10, pady=5)
-
         # back to main page button
         back_to_main_button = ttk.Button(title_frame, text="Back to Main Page", command=self.return_to_main_button)
-        back_to_main_button.pack(anchor=LEFT, padx=10, pady=5)
+        back_to_main_button.pack(anchor=W, padx=10, pady=5)
+
+        # Label for the title
+        title_label = ttk.Label(title_frame, text="Like A Knife Through Clutter", font=("Papyrus", 24))
+        title_label.pack(anchor=E, padx=10, pady=5)
 
         # subtitle label
         subtitle_label = ttk.Label(title_frame, text=f"{self.username}'s items", font=("Arial", 15))
@@ -249,11 +249,11 @@ class CreateItemPage:
 
         # Item management label
         item_management_label = ttk.Label(item_management_frame, text="Manage your items here:")
-        item_management_label.pack(anchor=LEFT, padx=10, pady=5)
+        item_management_label.pack(anchor=W, padx=10, pady=5)
 
         # View created items button
-        view_items_button = ttk.Button(item_management_frame, text="View Items", command=view_items_button)
-        view_items_button.pack(anchor=RIGHT, padx=10, pady=5)
+        view_items_button = ttk.Button(item_management_frame, text="View Items", command=self.view_items_button)
+        view_items_button.pack(anchor=E, padx=10, pady=5)
 
         # Item name label and entry
         ttk.Label(item_form_creation_frame, text="Item Name:").pack(anchor=CENTER, padx=10, pady=10)
@@ -290,6 +290,7 @@ class CreateItemPage:
         self.item_name_entry.delete(0, END)
         self.item_description_entry.delete(0, END)
 
+
 class ViewItemsPage:
     def __init__(self, conn):
         self.conn = conn
@@ -304,17 +305,17 @@ class ViewItemsPage:
         title_frame = ttk.LabelFrame(self.root)
         title_frame.pack(padx=10, pady=10, fill=BOTH)
         items_frame = ttk.LabelFrame(self.root)
-        items_frame.pack(padx=10, pady=10, fill=LEFT)
+        items_frame.pack(padx=10, pady=10, fill=W)
         item_management_frame = ttk.LabelFrame(self.root, text="Item Management")
-        item_management_frame.pack(padx=10, pady=10, fill=RIGHT)
+        item_management_frame.pack(padx=10, pady=10, fill=E)
 
         # Label for the title
         title_label = ttk.Label(title_frame, text="Like A Knife Through Clutter", font=("Papyrus", 24))
-        title_label.pack(anchor=RIGHT, padx=10, pady=5)
+        title_label.pack(anchor=E, padx=10, pady=5)
 
         # back to main page button
         back_to_main_button = ttk.Button(title_frame, text="Back to Main Page", command=self.return_to_main_button)
-        back_to_main_button.pack(anchor=LEFT, padx=10, pady=5)
+        back_to_main_button.pack(anchor=W, padx=10, pady=5)
 
 
 class ProgressPage:
