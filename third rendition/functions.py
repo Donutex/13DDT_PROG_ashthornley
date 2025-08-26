@@ -1,6 +1,7 @@
-import sqlite3
 from argon2 import PasswordHasher
 import messagebox
+from tkinter import * 
+from tkinter import ttk 
 
 # FUNCTIONS FOR THE DATABASE
 def create_item_table(conn):
@@ -14,6 +15,7 @@ def create_item_table(conn):
     ''')
     conn.commit()
 
+
 def create_login_table(conn):
     cursor = conn.cursor()
     cursor.execute('''
@@ -25,6 +27,7 @@ def create_login_table(conn):
     ''')
     conn.commit()
 
+
 # this function is used to create a new user in the login table
 def create_login(conn, username, password):
     cursor = conn.cursor()
@@ -34,7 +37,7 @@ def create_login(conn, username, password):
     conn.commit()
 
 # this function checks to see if the user exists in the login info table
-# it finds the user by their username, then it checks the hashed password
+# it finds the user by their username, then it takes the corresponding hashed password and compares it to the password they entered
 def check_login(conn, username, password):
     cursor = conn.cursor()
     cursor.execute("SELECT password FROM login1 WHERE username = ?", (username,))
@@ -64,10 +67,13 @@ def update_item(conn, item_id, new_name):
     cursor.execute("UPDATE items1 SET name = ? WHERE id = ?", (new_name, item_id))
     conn.commit()
 
-def get_item_list(conn):
+def get_item_list(conn, items_frame):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM items1")
     rows = cursor.fetchall()
     for row in rows:
-        print(f"ID: {row[0]}, Name: {row[1]}")
+        item_info = f"Name: {row[0]}, Description: {row[1]}"
+        item_label = ttk.Label(items_frame, text=item_info)
+        item_label.pack(anchor=W, padx=10, pady=2)
+    
 

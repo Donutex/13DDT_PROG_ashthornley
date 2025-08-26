@@ -12,7 +12,7 @@ class LoginPage:
         self.root.geometry("600x800")
         self.root.resizable(False, False)
         self.create_widgets()
-    
+
     def create_widgets(self):
         # Frame for the login stuff
         self.login_frame = ttk.LabelFrame(self.root, text="Login")
@@ -243,7 +243,7 @@ class CreateItemPage:
 
         # body text
         body_text = ttk.Label(text_frame, text="This is the item management page of 'Like A Knife Through Clutter' where you can create, edit and view your items." \
-        " use the methods below to add items and start.", wraplength=500)
+        " use the methods below to add items.", wraplength=500)
         body_text.font=("Arial", 12)
         body_text.pack(anchor=CENTER, padx=5, pady=5)
 
@@ -253,7 +253,7 @@ class CreateItemPage:
 
         # View created items button
         view_items_button = ttk.Button(item_management_frame, text="View Items", command=self.view_items_button)
-        view_items_button.pack(anchor=E, padx=10, pady=5)
+        view_items_button.pack(anchor=W, padx=10, pady=5)
 
         # Item name label and entry
         ttk.Label(item_form_creation_frame, text="Item Name:").pack(anchor=CENTER, padx=10, pady=10)
@@ -277,7 +277,7 @@ class CreateItemPage:
     def view_items_button(self):
         # Open the View Items Page
         self.root.destroy()
-        ViewItemsPage(self.conn).run()
+        ViewItemsPage(self.conn, self.username).run()
 
     def create_item_button(self):
         item_name = self.item_name_entry.get()
@@ -309,6 +309,24 @@ class ViewItemsPage:
         item_management_frame = ttk.LabelFrame(self.root, text="Item Management")
         item_management_frame.pack(padx=10, pady=10, fill=E)
 
+        # scrollable items_frame setup
+        canvas = Canvas(items_frame)
+        scrollbar = ttk.Scrollbar(items_frame, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
+        # when the size of the scrollable frame changes, 
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
         # Label for the title
         title_label = ttk.Label(title_frame, text="Like A Knife Through Clutter", font=("Papyrus", 24))
         title_label.pack(anchor=E, padx=10, pady=5)
@@ -316,6 +334,14 @@ class ViewItemsPage:
         # back to main page button
         back_to_main_button = ttk.Button(title_frame, text="Back to Main Page", command=self.return_to_main_button)
         back_to_main_button.pack(anchor=W, padx=10, pady=5)
+
+        # Item list label
+        item_list_label = ttk.Label(items_frame, text="Your Items:")
+        item_list_label.pack(anchor=W, padx=10, pady=5)
+
+        # Text widget to display items
+        functions.get_item_list(self.conn)
+
 
 
 class ProgressPage:
