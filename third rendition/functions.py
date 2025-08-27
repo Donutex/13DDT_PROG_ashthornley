@@ -51,26 +51,30 @@ def check_login(conn, username, password):
     except:
         messagebox.showerror("Login Failed", "Incorrect username or password. Please try again or sign up.")
 
-
+# item functions
 def add_item(conn, name, description):
     cursor = conn.cursor()
     cursor.execute("INSERT INTO items1 (name, description) VALUES (?, ?)", (name, description))
     conn.commit()
+    return True
 
 def remove_item(conn, item_id):
     cursor = conn.cursor()
     cursor.execute("DELETE FROM items1 WHERE id = ?", (item_id,))
     conn.commit()
+    return True
 
 def update_item(conn, item_id, new_name):
     cursor = conn.cursor()
     cursor.execute("UPDATE items1 SET name = ? WHERE id = ?", (new_name, item_id))
     conn.commit()
+    return True
 
 def get_item_list(conn):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM items1")
     rows = cursor.fetchall()
+    return rows
 
     
 

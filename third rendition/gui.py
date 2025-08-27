@@ -192,7 +192,7 @@ class MainPage:
     def view_items_button(self):
         # Open the Create Item Page
         self.root.destroy()
-        CreateItemPage(self.conn, self.username).run()
+        ItemPage(self.conn, self.username).run()
 
     def view_progress_button(self):
         # Open the Progress Page
@@ -208,7 +208,7 @@ class MainPage:
         self.root.mainloop()
 
 
-class CreateItemPage:
+class ItemPage:
     def __init__(self, conn, username):
         self.root = Tk()
         self.conn = conn
@@ -279,9 +279,9 @@ class CreateItemPage:
         canvas.configure(yscrollcommand=scrollbar.set)
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
-        self.update_item_list(self.scrollable_frame)  # Initial population of the item list
+        self.update_item_list()  # Initial population of the item list
 
-    def update_item_list(self,):
+    def update_item_list(self):
         # calls scrollable frame AS NOT A FUNCTION, but a variable. clears the frame 
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
@@ -314,7 +314,10 @@ class CreateItemPage:
         self.item_name_entry.delete(0, END)
         self.item_description_entry.delete(0, END)
         # update the item list
-        self.update_item_list(self.scrollable_frame)
+        self.update_item_list()
+
+    def run(self):
+        self.root.mainloop()
 
 
 class ViewItemsPage:
@@ -325,6 +328,9 @@ class ViewItemsPage:
         self.root.geometry("600x800")
         self.root.resizable(False, False)
         self.create_widgets()
+
+    def run(self):
+        self.root.mainloop()
 
 
 

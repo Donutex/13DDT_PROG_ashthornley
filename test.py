@@ -1,33 +1,27 @@
-import tkinter as tk
+from openai import OpenAI
 
-def draw_spongebob(canvas):
-    # Body
-    canvas.create_rectangle(100, 60, 300, 260, fill="#ffe135", outline="#d4b200", width=4)
-    # Eyes
-    canvas.create_oval(140, 90, 190, 140, fill="white", outline="black", width=2)
-    canvas.create_oval(210, 90, 260, 140, fill="white", outline="black", width=2)
-    canvas.create_oval(160, 110, 180, 130, fill="#00bfff", outline="black", width=2)
-    canvas.create_oval(230, 110, 250, 130, fill="#00bfff", outline="black", width=2)
-    canvas.create_oval(170, 120, 175, 125, fill="black")
-    canvas.create_oval(240, 120, 245, 125, fill="black")
-    # Sunglasses (cool!)
-    canvas.create_rectangle(145, 110, 185, 130, fill="black", outline="white", width=2)
-    canvas.create_rectangle(215, 110, 255, 130, fill="black", outline="white", width=2)
-    canvas.create_line(185, 120, 215, 120, fill="white", width=3)
-    canvas.create_line(145, 120, 130, 115, fill="black", width=4)
-    canvas.create_line(255, 120, 270, 115, fill="black", width=4)
-    # Mouth (smirk)
-    canvas.create_arc(170, 160, 230, 200, start=200, extent=100, style=tk.ARC, width=3)
-    # Gold chain
-    canvas.create_oval(170, 250, 230, 270, outline="#FFD700", width=4)
-    # Optional: add a little sparkle
-    canvas.create_line(200, 255, 205, 260, fill="#FFD700", width=2)
-    canvas.create_line(205, 260, 210, 255, fill="#FFD700", width=2)
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key="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",
+)
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Cool SpongeBob")
-    canvas = tk.Canvas(root, width=400, height=400, bg="#87ceeb")
-    canvas.pack()
-    draw_spongebob(canvas)
-    root.mainloop()
+system_message = (
+    "You are a helpful and knowledgeable deculturing assistant for my app: Like A Knife Through Clutter."
+    "You will receive "
+)
+
+user_message = (
+
+)
+
+response = client.chat.completions.create(
+    model="deepseek/deepseek-r1:free",
+    messages=[
+        {
+        "role":"system","content":system_message},
+        {"role":"user","content":"abscedg"}
+    ]
+)
+result = response.choices[0].message.content
+
+print(result)
