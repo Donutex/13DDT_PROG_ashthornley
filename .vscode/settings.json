@@ -9,9 +9,11 @@
         "Mellons",
         "padx",
         "pady",
+        "scrollregion",
         "tkintermapview",
         "trademe",
         "unhides",
-        "wraplength"
+        "wraplength",
+        "yscrollcommand"
     ]
 }

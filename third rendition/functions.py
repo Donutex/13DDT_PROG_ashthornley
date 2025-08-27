@@ -67,13 +67,10 @@ def update_item(conn, item_id, new_name):
     cursor.execute("UPDATE items1 SET name = ? WHERE id = ?", (new_name, item_id))
     conn.commit()
 
-def get_item_list(conn, items_frame):
+def get_item_list(conn):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM items1")
     rows = cursor.fetchall()
-    for row in rows:
-        item_info = f"Name: {row[0]}, Description: {row[1]}"
-        item_label = ttk.Label(items_frame, text=item_info)
-        item_label.pack(anchor=W, padx=10, pady=2)
+
     
 

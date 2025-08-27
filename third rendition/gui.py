@@ -214,8 +214,6 @@ class CreateItemPage:
         self.conn = conn
         self.username = username
         self.root.title("Create Item Page")
-        self.root.geometry("600x800")
-        self.root.resizable(False, False)
         self.create_widgets()
 
     def create_widgets(self):
@@ -224,9 +222,9 @@ class CreateItemPage:
         title_frame.pack(padx=10, pady=10, fill=BOTH)
         text_frame = ttk.LabelFrame(self.root)
         text_frame.pack(padx=10, pady=10, fill=BOTH)
-        item_management_frame = ttk.LabelFrame(self.root, text="Item Management")
-        item_management_frame.pack(padx=10, pady=10, fill=BOTH)
-        item_form_creation_frame = ttk.LabelFrame(self.root, text="Create Item")
+        item_viewing_frame = ttk.LabelFrame(self.root, text="Create Item")
+        item_viewing_frame.pack(padx=10, pady=10, fill=BOTH)
+        item_form_creation_frame = ttk.LabelFrame(self.root, text="Item Management")
         item_form_creation_frame.pack(padx=10, pady=10, fill=BOTH)
 
         # back to main page button
@@ -247,14 +245,6 @@ class CreateItemPage:
         body_text.font=("Arial", 12)
         body_text.pack(anchor=CENTER, padx=5, pady=5)
 
-        # Item management label
-        item_management_label = ttk.Label(item_management_frame, text="Manage your items here:")
-        item_management_label.pack(anchor=W, padx=10, pady=5)
-
-        # View created items button
-        view_items_button = ttk.Button(item_management_frame, text="View Items", command=self.view_items_button)
-        view_items_button.pack(anchor=W, padx=10, pady=5)
-
         # Item name label and entry
         ttk.Label(item_form_creation_frame, text="Item Name:").pack(anchor=CENTER, padx=10, pady=10)
         self.item_name_entry = ttk.Entry(item_form_creation_frame)
@@ -265,9 +255,43 @@ class CreateItemPage:
         self.item_description_entry = ttk.Entry(item_form_creation_frame)
         self.item_description_entry.pack(padx=10, pady=10, fill=BOTH)
 
-        # Create Item button
+        # Create Item button AND add update the scrollable list when clicked
         self.create_item_button = ttk.Button(item_form_creation_frame, text="Create Item", command=self.create_item_button)
         self.create_item_button.pack(padx=10, pady=10, fill=BOTH)
+
+        # Item management label
+        item_management_label = ttk.Label(item_viewing_frame, text="View your items here:")
+        item_management_label.pack(anchor=W, padx=10, pady=5)
+
+        # created items list
+        # scrollable items_frame setup
+        canvas = Canvas(item_viewing_frame)
+        scrollbar = ttk.Scrollbar(item_viewing_frame, orient="vertical", command=canvas.yview)
+        self.scrollable_frame = ttk.Frame(canvas)
+        # when the size of the scrollable frame changes, the scroll canvas is updated so nothing breaks
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        self.update_item_list(self.scrollable_frame)  # Initial population of the item list
+
+    def update_item_list(self,):
+        # calls scrollable frame AS NOT A FUNCTION, but a variable. clears the frame 
+        for widget in self.scrollable_frame.winfo_children():
+            widget.destroy()
+        items = functions.get_item_list(self.conn)  
+        if items:
+            for row in items:
+                item_info = f"Name: {row[1]}, Description: {row[2]}"
+                ttk.Label(self.scrollable_frame, text=item_info).pack(anchor="w", padx=10, pady=2)
+        else: 
+            ttk.Label(self.scrollable_frame, text="No items found.").pack(anchor="w", padx=10, pady=2)
 
     def return_to_main_button(self):
         # Return to the main page
@@ -285,10 +309,12 @@ class CreateItemPage:
         if functions.add_item(self.conn, item_name, item_description):
             messagebox.showinfo("Item Created", f"Item '{item_name}' has been created successfully.")
         else:
-            messagebox.showerror("Failed to create item. Please try again.")
+            messagebox.showerror("Item Not Created", "Failed to create item. Please try again.")
         # empty the text boxes
         self.item_name_entry.delete(0, END)
         self.item_description_entry.delete(0, END)
+        # update the item list
+        self.update_item_list(self.scrollable_frame)
 
 
 class ViewItemsPage:
@@ -300,47 +326,6 @@ class ViewItemsPage:
         self.root.resizable(False, False)
         self.create_widgets()
 
-    def create_widgets(self):
-        # frames for this page
-        title_frame = ttk.LabelFrame(self.root)
-        title_frame.pack(padx=10, pady=10, fill=BOTH)
-        items_frame = ttk.LabelFrame(self.root)
-        items_frame.pack(padx=10, pady=10, fill=W)
-        item_management_frame = ttk.LabelFrame(self.root, text="Item Management")
-        item_management_frame.pack(padx=10, pady=10, fill=E)
-
-        # scrollable items_frame setup
-        canvas = Canvas(items_frame)
-        scrollbar = ttk.Scrollbar(items_frame, orient="vertical", command=canvas.yview)
-        scrollable_frame = ttk.Frame(canvas)
-        # when the size of the scrollable frame changes, 
-        scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(
-                scrollregion=canvas.bbox("all")
-            )
-        )
-
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
-
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
-
-        # Label for the title
-        title_label = ttk.Label(title_frame, text="Like A Knife Through Clutter", font=("Papyrus", 24))
-        title_label.pack(anchor=E, padx=10, pady=5)
-
-        # back to main page button
-        back_to_main_button = ttk.Button(title_frame, text="Back to Main Page", command=self.return_to_main_button)
-        back_to_main_button.pack(anchor=W, padx=10, pady=5)
-
-        # Item list label
-        item_list_label = ttk.Label(items_frame, text="Your Items:")
-        item_list_label.pack(anchor=W, padx=10, pady=5)
-
-        # Text widget to display items
-        functions.get_item_list(self.conn)
 
 
 
