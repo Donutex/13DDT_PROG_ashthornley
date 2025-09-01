@@ -346,13 +346,13 @@ class ProgressPage:
         introduction_text.font=("Arial", 12)
         introduction_text.pack(anchor=CENTER, padx=5, pady=5)
 
-        # progress bar label
+        # milestone bar label
         progress_bar_label = ttk.Label(progress_bar_frame, text="Your progress will be displayed here:")
         progress_bar_label.pack(anchor=CENTER, padx=5, pady=5)
-        # progress bar (just a placeholder for now)
+        # milestone bar (just a placeholder for now)
         self.progress = ttk.Progressbar(progress_bar_frame, orient="horizontal", length=400, mode="determinate")
         self.progress.pack(padx=10, pady=10)
-        #work on this LATER WORK ON THIS LATER OMG!
+        self.update_milestone_bar()  # Initial update of the progress bar
 
         # decluttering log label
         decluttering_log_label = ttk.Label(decluttering_frame, text="Log your decluttering here:")
@@ -376,24 +376,21 @@ class ProgressPage:
         item_name = self.decluttering_combobox.get()
         if functions.get_item_id_by_name(self.conn, item_name):
             item_id = functions.get_item_id_by_name(self.conn, item_name)
-            functions.remove_item(self.conn, item_id)
+            functions.declutter_item(self.conn, item_id)
+            functions.log_declutter(self.conn, self.username, item_name, item_id)
+            self.update_milestone_bar()
             messagebox.showinfo("Decluttering Logged", "Your decluttering has been logged successfully.")
         else:
             messagebox.showerror("Decluttering Not Logged", "Failed to log decluttering. Please try again.")
+        self.decluttering_combobox.set("Select an item you have decluttered")
 
-    def create_item_button(self):
-        item_name = self.item_name_entry.get()
-        item_description = self.item_description_entry.get()
-        if functions.add_item(self.conn, item_name, item_description):
-            messagebox.showinfo("Item Created", f"Item '{item_name}' has been created successfully.")
-        else:
-            messagebox.showerror("Item Not Created", "Failed to create item. Please try again.")
-        # empty the text boxes
-        self.item_name_entry.delete(0, END)
-        self.item_description_entry.delete(0, END)
-        # update the item list
-        self.update_item_list()
-        
+    def update_milestone_bar(self):
+        milestone = 25
+        count = functions.get_declutter_count(self.conn, self.username)
+        progress = (count / milestone) * 100
+        self.progress['value'] = progress
+        if count > 0 and count / milestone == 1:
+            messagebox.showinfo("Milestone Reached!", "Congratulations! You are doing great keep up the good work!")
 
     def run(self):
         self.root.mainloop()

@@ -15,7 +15,6 @@ def create_item_table(conn):
     ''')
     conn.commit()
 
-
 def create_login_table(conn):
     cursor = conn.cursor()
     cursor.execute('''
@@ -23,6 +22,19 @@ def create_login_table(conn):
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL,
         password TEXT NOT NULL
+    )
+    ''')
+    conn.commit()
+
+def create_declutter_log_table(conn):
+    cursor = conn.cursor()
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS decluttering_log1 (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        item_id INTEGER NOT NULL,
+        item_name TEXT NOT NULL,
+        date_decluttered TEXT NOT NULL
     )
     ''')
     conn.commit()
@@ -51,7 +63,7 @@ def check_login(conn, username, password):
     except:
         messagebox.showerror("Login Failed", "Incorrect username or password. Please try again or sign up.")
 
-# item functions
+# item sql functions
 def add_item(conn, name, description):
     cursor = conn.cursor()
     cursor.execute("INSERT INTO items1 (name, description) VALUES (?, ?)", (name, description))
@@ -59,6 +71,12 @@ def add_item(conn, name, description):
     return True
 
 def remove_item(conn, item_id):
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM items1 WHERE id = ?", (item_id,))
+    conn.commit()
+    return True
+
+def declutter_item(conn, item_id):
     cursor = conn.cursor()
     cursor.execute("DELETE FROM items1 WHERE id = ?", (item_id,))
     conn.commit()
@@ -85,4 +103,16 @@ def get_item_id_by_name(conn, name):
     else:
         None
     
+# milestone bar functions
+
+def log_declutter(conn, username, item_name, item_id):
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO decluttering_log1 (username, item_name, item_id) VALUES (?, ?, ?)", (username, item_name, item_id))
+    conn.commit()
+
+def get_declutter_count(conn, username):
+    cursor =  conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM decluttering_log1 WHERE username = ?", (username,))
+    count = cursor.fetchone()[0]
+    return count
 
