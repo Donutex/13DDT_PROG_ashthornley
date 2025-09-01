@@ -333,7 +333,7 @@ class ProgressPage:
     def create_widgets(self):
         # frames for the page 
         body_frame = ttk.LabelFrame(self.root, text="Progress")
-        body_frame.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
+        body_frame.pack(padx=10, pady=10, fill=BOTH)
         text_frame = ttk.LabelFrame(body_frame, text="Progress Text")
         text_frame.pack(padx=10, pady=10, fill=BOTH)
         progress_bar_frame = ttk.LabelFrame(body_frame, text="Progress Bar")
@@ -358,14 +358,42 @@ class ProgressPage:
         decluttering_log_label = ttk.Label(decluttering_frame, text="Log your decluttering here:")
         decluttering_log_label.pack(anchor=CENTER, padx=5, pady=5)
 
-        # decluttering function 
-        decluttering_combobox = ttk.Combobox(decluttering_frame)
+        # decluttering dropdown menu 
+        self.decluttering_combobox = ttk.Combobox(decluttering_frame)
         rows = functions.get_item_list(self.conn)
         item_name = []
         for row in rows:
             item_name.append(row[1])
-        decluttering_combobox['values'] = item_name
-        decluttering_combobox.pack(padx=10, pady=10, fill=BOTH)
+        self.decluttering_combobox['values'] = item_name
+        self.decluttering_combobox.set("Select an item you have decluttered")
+        self.decluttering_combobox.pack(padx=10, pady=10, fill=BOTH)
+
+        # decluttering button
+        decluttering_button = ttk.Button(decluttering_frame, text="Log Decluttering", command=self.decluttering_button)
+        decluttering_button.pack(padx=10, pady=10, fill=BOTH)
+
+    def decluttering_button(self):
+        item_name = self.decluttering_combobox.get()
+        if functions.get_item_id_by_name(self.conn, item_name):
+            item_id = functions.get_item_id_by_name(self.conn, item_name)
+            functions.remove_item(self.conn, item_id)
+            messagebox.showinfo("Decluttering Logged", "Your decluttering has been logged successfully.")
+        else:
+            messagebox.showerror("Decluttering Not Logged", "Failed to log decluttering. Please try again.")
+
+    def create_item_button(self):
+        item_name = self.item_name_entry.get()
+        item_description = self.item_description_entry.get()
+        if functions.add_item(self.conn, item_name, item_description):
+            messagebox.showinfo("Item Created", f"Item '{item_name}' has been created successfully.")
+        else:
+            messagebox.showerror("Item Not Created", "Failed to create item. Please try again.")
+        # empty the text boxes
+        self.item_name_entry.delete(0, END)
+        self.item_description_entry.delete(0, END)
+        # update the item list
+        self.update_item_list()
+        
 
     def run(self):
         self.root.mainloop()
@@ -382,11 +410,11 @@ class NextStepsPage:
     def create_widgets(self):
         # Create a frame for the next steps
         next_steps_frame = ttk.LabelFrame(self.root, text="Next Steps")
-        next_steps_frame.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
+        next_steps_frame.pack(padx=10, pady=10, sticky="NSEW")
 
         # Add a label to show next steps
         self.next_steps_label = ttk.Label(next_steps_frame, text="Your next steps will be displayed here.")
-        self.next_steps_label.grid(row=0, column=0, padx=5, pady=5)
+        self.next_steps_label.pack(padx=5, pady=5)
 
     def run(self):
         self.root.mainloop()

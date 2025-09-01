@@ -76,5 +76,13 @@ def get_item_list(conn):
     rows = cursor.fetchall()
     return rows
 
+def get_item_id_by_name(conn, name):
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM items1 WHERE name = ?", (name,))
+    row = cursor.fetchone()
+    if row:
+        return row[0]
+    else:
+        None
     
 
