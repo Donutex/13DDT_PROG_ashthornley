@@ -197,12 +197,12 @@ class MainPage:
     def view_progress_button(self):
         # Open the Progress Page
         self.root.destroy()
-        ProgressPage(self.conn).run()
+        ProgressPage(self.conn, self.username).run()
 
     def view_next_steps_button(self):
         # Open the Next Steps Page
         self.root.destroy()
-        NextStepsPage(self.conn).run()
+        NextStepsPage(self.conn, self.username).run()
 
     def run(self):
         self.root.mainloop()
@@ -301,7 +301,7 @@ class ItemPage:
     def view_items_button(self):
         # Open the View Items Page
         self.root.destroy()
-        ViewItemsPage(self.conn, self.username).run()
+        ItemPage(self.conn, self.username).run()
 
     def create_item_button(self):
         item_name = self.item_name_entry.get()
@@ -320,37 +320,52 @@ class ItemPage:
         self.root.mainloop()
 
 
-class ViewItemsPage:
-    def __init__(self, conn):
-        self.conn = conn
-        self.root = Tk()
-        self.root.title("View Items Page")
-        self.root.geometry("600x800")
-        self.root.resizable(False, False)
-        self.create_widgets()
-
-    def run(self):
-        self.root.mainloop()
-
-
-
-
 class ProgressPage:
-    def __init__(self):
+    def __init__(self, conn, username):
         self.root = Tk()
+        self.conn = conn 
+        self.username = username
         self.root.title("Progress Page")
         self.root.geometry("600x800")
         self.root.resizable(False, False)
         self.create_widgets()
 
     def create_widgets(self):
-        # Create a frame for the progress display
-        progress_frame = ttk.LabelFrame(self.root, text="Progress")
-        progress_frame.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
+        # frames for the page 
+        body_frame = ttk.LabelFrame(self.root, text="Progress")
+        body_frame.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
+        text_frame = ttk.LabelFrame(body_frame, text="Progress Text")
+        text_frame.pack(padx=10, pady=10, fill=BOTH)
+        progress_bar_frame = ttk.LabelFrame(body_frame, text="Progress Bar")
+        progress_bar_frame.pack(padx=10, pady=10, fill=BOTH)
+        decluttering_frame = ttk.LabelFrame(body_frame, text="Decluttering Log")
+        decluttering_frame.pack(padx=10, pady=10, fill=BOTH)
 
-        # Add a label to show progress
-        self.progress_label = ttk.Label(progress_frame, text="Your progress will be displayed here.")
-        self.progress_label.grid(row=0, column=0, padx=5, pady=5)
+        # body text label
+        introduction_text = ttk.Label(text_frame, text="This is the progress page of 'Like A Knife Through Clutter' this is where you can view your progress and log decluttering that you have done")
+        introduction_text.font=("Arial", 12)
+        introduction_text.pack(anchor=CENTER, padx=5, pady=5)
+
+        # progress bar label
+        progress_bar_label = ttk.Label(progress_bar_frame, text="Your progress will be displayed here:")
+        progress_bar_label.pack(anchor=CENTER, padx=5, pady=5)
+        # progress bar (just a placeholder for now)
+        self.progress = ttk.Progressbar(progress_bar_frame, orient="horizontal", length=400, mode="determinate")
+        self.progress.pack(padx=10, pady=10)
+        #work on this LATER WORK ON THIS LATER OMG!
+
+        # decluttering log label
+        decluttering_log_label = ttk.Label(decluttering_frame, text="Log your decluttering here:")
+        decluttering_log_label.pack(anchor=CENTER, padx=5, pady=5)
+
+        # decluttering function 
+        decluttering_combobox = ttk.Combobox(decluttering_frame)
+        rows = functions.get_item_list(self.conn)
+        item_name = []
+        for row in rows:
+            item_name.append(row[1])
+        decluttering_combobox['values'] = item_name
+        decluttering_combobox.pack(padx=10, pady=10, fill=BOTH)
 
     def run(self):
         self.root.mainloop()
