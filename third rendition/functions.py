@@ -2,6 +2,7 @@ from argon2 import PasswordHasher
 import messagebox
 from tkinter import * 
 from tkinter import ttk 
+from openai import OpenAI
 
 # FUNCTIONS FOR THE DATABASE
 def create_item_table(conn):
@@ -104,7 +105,6 @@ def get_item_id_by_name(conn, name):
         None
     
 # milestone bar functions
-
 def log_declutter(conn, username, item_name, item_id):
     cursor = conn.cursor()
     cursor.execute("INSERT INTO decluttering_log1 (username, item_name, item_id) VALUES (?, ?, ?)", (username, item_name, item_id))
@@ -116,3 +116,38 @@ def get_declutter_count(conn, username):
     count = cursor.fetchone()[0]
     return count
 
+# ai functions for next steps
+def ai_predicted_next_steps(conn):
+    item_list = []
+    item_list = get_item_list(conn)
+
+    client = OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key="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",
+    )
+
+    system_message = (
+        "You are a helpful and knowledgeable decluttering assistant for my app: Like A Knife Through Clutter."
+        "You will receive a list of items that a user owns and wants to declutter"
+        "You will provide an appropriate next step for the user, you will decide what the user will do with their item"
+        "When you provide the next step, you choose from either: 'donate', 'sell', 'recycle', 'trash', 'keep' "
+        "You will not provide any other options, only these five"
+        "You will not add any extra information, only the one word next step"
+        "You will not add any punctuation, only the one word next step"
+    )
+
+    user_message = (
+        f"Here is a list of items that the user owns and wants to declutter: {item_list}"
+        "What is the next step for the user to take with their items? Choose from either: 'donate', 'sell', 'recycle', 'trash', 'keep' "
+    )
+
+    response = client.chat.completions.create(
+        model="deepseek/deepseek-r1:free",
+        messages=[
+            {
+            "role":"system","content":system_message},
+            {"role":"user","content":user_message}
+        ]
+    )
+    result = response.choices[0].message.content
+    print(result)

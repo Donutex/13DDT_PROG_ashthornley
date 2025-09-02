@@ -1,5 +1,6 @@
 from tkinter import * 
 from tkinter import ttk 
+from tkintermapview import TkinterMapView
 import tkintermapview
 import functions
 import messagebox
@@ -331,7 +332,9 @@ class ProgressPage:
         self.create_widgets()
 
     def create_widgets(self):
-        # frames for the page 
+        # frames for the page
+        title_frame = ttk.LabelFrame(self.root)
+        title_frame.pack(padx=10, pady=10, fill=BOTH) 
         body_frame = ttk.LabelFrame(self.root, text="Progress")
         body_frame.pack(padx=10, pady=10, fill=BOTH)
         text_frame = ttk.LabelFrame(body_frame, text="Progress Text")
@@ -340,6 +343,18 @@ class ProgressPage:
         progress_bar_frame.pack(padx=10, pady=10, fill=BOTH)
         decluttering_frame = ttk.LabelFrame(body_frame, text="Decluttering Log")
         decluttering_frame.pack(padx=10, pady=10, fill=BOTH)
+
+        # back to main page button
+        back_to_main_button = ttk.Button(title_frame, text="Back to Main Page", command=self.return_to_main_button)
+        back_to_main_button.pack(anchor=W, padx=10, pady=5)
+
+        # Label for the title
+        title_label = ttk.Label(title_frame, text="Like A Knife Through Clutter", font=("Papyrus", 24))
+        title_label.pack(anchor=CENTER, padx=5)
+
+        # subtitle label
+        subtitle_label = ttk.Label(title_frame, text=f"{self.username}'s progress!", font=("Arial", 15))
+        subtitle_label.pack(anchor=CENTER, padx=5, pady=5)
 
         # body text label
         introduction_text = ttk.Label(text_frame, text="This is the progress page of 'Like A Knife Through Clutter' this is where you can view your progress and log decluttering that you have done")
@@ -392,13 +407,20 @@ class ProgressPage:
         if count > 0 and count / milestone == 1:
             messagebox.showinfo("Milestone Reached!", "Congratulations! You are doing great keep up the good work!")
 
+    def return_to_main_button(self):
+        # Return to the main page
+        self.root.destroy()
+        MainPage(self.conn, self.username).run()
+
     def run(self):
         self.root.mainloop()
 
 
 class NextStepsPage:
-    def __init__(self):
+    def __init__(self, conn, username):
         self.root = Tk()
+        self.conn = conn
+        self.username = username
         self.root.title("Next Steps Page")
         self.root.geometry("600x800")
         self.root.resizable(False, False)
@@ -406,12 +428,51 @@ class NextStepsPage:
 
     def create_widgets(self):
         # Create a frame for the next steps
+        title_frame = ttk.LabelFrame(self.root)
+        title_frame.pack(padx=10, pady=10, fill=BOTH)
+        body_frame = ttk.LabelFrame(self.root, text="Next Steps")
+        body_frame.pack(padx=10, pady=10, fill=BOTH)
         next_steps_frame = ttk.LabelFrame(self.root, text="Next Steps")
-        next_steps_frame.pack(padx=10, pady=10, sticky="NSEW")
+        next_steps_frame.pack(padx=10, pady=10, fill=BOTH)
+        helpful_locations_frame = ttk.LabelFrame(body_frame, text="Helpful Locations")
+        helpful_locations_frame.pack(padx=10, pady=10, fill=BOTH)
 
-        # Add a label to show next steps
-        self.next_steps_label = ttk.Label(next_steps_frame, text="Your next steps will be displayed here.")
-        self.next_steps_label.pack(padx=5, pady=5)
+        # back to main page button
+        back_to_main_button = ttk.Button(title_frame, text="Back to Main Page", command=self.return_to_main_button)
+        back_to_main_button.pack(anchor=W, padx=10, pady=5)
+
+        # Label for the title
+        title_label = ttk.Label(title_frame, text="Like A Knife Through Clutter", font=("Papyrus", 24))
+        title_label.pack(anchor=E, padx=10, pady=5)
+
+        # subtitle label
+        subtitle_label = ttk.Label(title_frame, text=f"{self.username}'s Next Steps!", font=("Arial", 15))
+        subtitle_label.pack(anchor=CENTER, padx=5, pady=5)
+
+        # test to see if the ai function works THIS WILL BE CHANGED LATER
+        ai_button = ttk.Button(next_steps_frame, text="Get Next Steps", command=self.ai_next_steps_button)
+        ai_button.pack(padx=10, pady=10, fill=BOTH)
+
+        # map widget for helpful locations
+        # map label
+        map_label = ttk.Label(helpful_locations_frame, text="Helpful Locations Near You:")
+        map_label.pack(anchor=CENTER, padx=5, pady=5)
+        # the actual map
+        local_map = tkintermapview.TkinterMapView(helpful_locations_frame, width=600, height=400, corner_radius=0)
+        local_map.pack(padx=10, pady=10)
+        local_map.set_position(-36.852095, 174.763180)
+        local_map.set_zoom(10)
+
+        """
+        # map that shows the location of nearby useful stores / places to help dispose of your items.
+        local_map = tkintermapview.TkinterMapView(body_frame, width=600, height=400, corner_radius=0)
+        local_map.grid(row=1, column=0, padx=10, pady=10, sticky="NSEW")    
+        local_map.set_position(-36.852095, 174.763180)
+        local_map.set_zoom(10)
+        """
+
+    def ai_next_steps_button(self):
+        functions.ai_predicted_next_steps(self.conn)
 
     def run(self):
         self.root.mainloop()
