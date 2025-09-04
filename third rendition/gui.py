@@ -462,6 +462,11 @@ class NextStepsPage:
         local_map.pack(padx=10, pady=10)
         local_map.set_position(-36.852095, 174.763180)
         local_map.set_zoom(10)
+        suitable_places = ['donation center', 'recycling center', 'thrift store', 'landfill', 'charity shop']
+        for i in suitable_places:
+            functions.search_nearby_places(i, -36.852095, 174.763180)
+
+        
 
         """
         # map that shows the location of nearby useful stores / places to help dispose of your items.

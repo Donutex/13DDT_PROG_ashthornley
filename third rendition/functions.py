@@ -3,6 +3,7 @@ import messagebox
 from tkinter import * 
 from tkinter import ttk 
 from openai import OpenAI
+from geopy.geocoders import Nominatim
 
 # FUNCTIONS FOR THE DATABASE
 def create_item_table(conn):
@@ -151,3 +152,27 @@ def ai_predicted_next_steps(conn):
     )
     result = response.choices[0].message.content
     print(result)
+
+# map functions for donation locations etc
+def search_nearby_places(query, latitude, longitude, limit=5):
+    #initialize geolocator with a user agent, nothing would work without this
+    geolocator = Nominatim(user_agent="like_a_knife_through_clutter_app")
+    #converts the latitude and longitude into a human readable address, heh 
+    location = geolocator.reverse(f"{latitude}, {longitude}", exactly_one=True)
+    #if the location is found and it has an address...
+    if location and "address" in location.raw:
+        # get the city name from the address, if it exists
+        city = location.raw["address"].get("city", "")
+        #searching for a location using the human readable address and the user's query
+    # searching for places matching the details, gets 5 places
+    results = geolocator.geocode(f"{query}, {city}", exactly_one=False, limit=limit)
+    places = []
+    # making a list of results to return
+    if results:
+        for result in results:
+            places.append({
+                "name": result.address,
+                "latitude": result.latitude,
+                "longitude": result.longitude
+            })
+    return places
