@@ -4,12 +4,20 @@ from tkinter import *
 from tkinter import ttk 
 from openai import OpenAI
 from geopy.geocoders import Nominatim
+import dotenv
+import os
+
+# this loads the .env file to get the api and put the key into pythons environment variables
+dotenv.load_dotenv()
+
+# this takes the api key from pythons environment variables 
+api_key = os.getenv("API_KEY")
 
 # FUNCTIONS FOR THE DATABASE
 def create_item_table(conn):
     cursor = conn.cursor()
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS items1 (
+    CREATE TABLE IF NOT EXISTS items1 (s
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         description TEXT NOT NULL
@@ -84,9 +92,9 @@ def declutter_item(conn, item_id):
     conn.commit()
     return True
 
-def update_item(conn, item_id, new_name):
+def update_item(conn, item_id, new_name, new_description):
     cursor = conn.cursor()
-    cursor.execute("UPDATE items1 SET name = ? WHERE id = ?", (new_name, item_id))
+    cursor.execute("UPDATE items1 SET name = ?, description = ? WHERE id = ?", (new_name, new_description, item_id))
     conn.commit()
     return True
 
@@ -124,7 +132,7 @@ def ai_predicted_next_steps(conn):
 
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
-        api_key="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",
+        api_key=api_key,
     )
 
     system_message = (
@@ -152,27 +160,23 @@ def ai_predicted_next_steps(conn):
     )
     result = response.choices[0].message.content
     print(result)
+    return result
 
 # map functions for donation locations etc
 def search_nearby_places(query, latitude, longitude, limit=5):
-    #initialize geolocator with a user agent, nothing would work without this
     geolocator = Nominatim(user_agent="like_a_knife_through_clutter_app")
-    #converts the latitude and longitude into a human readable address, heh 
     location = geolocator.reverse(f"{latitude}, {longitude}", exactly_one=True)
+    places = []
     #if the location is found and it has an address...
     if location and "address" in location.raw:
-        # get the city name from the address, if it exists
         city = location.raw["address"].get("city", "")
-        #searching for a location using the human readable address and the user's query
-    # searching for places matching the details, gets 5 places
-    results = geolocator.geocode(f"{query}, {city}", exactly_one=False, limit=limit)
-    places = []
-    # making a list of results to return
-    if results:
-        for result in results:
-            places.append({
-                "name": result.address,
-                "latitude": result.latitude,
-                "longitude": result.longitude
-            })
+        results = geolocator.geocode(f"{query}, {city}", exactly_one=False, limit=limit)
+        if results:
+            for result in results:
+                places.append({
+                    "name": result.address,
+                    "lat": result.latitude,
+                    "lon": result.longitude
+                })
     return places
+

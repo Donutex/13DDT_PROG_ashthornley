@@ -109,6 +109,8 @@ class SignUpPage:
         self.back_to_login_button.pack(anchor=CENTER, padx=10, pady=10)
 
     def signup_button(self):
+        """_summary_
+        """
         username = self.signup_username_entry.get()
         password = self.signup_password_entry.get()
         # function from the function py file
@@ -223,8 +225,11 @@ class ItemPage:
         title_frame.pack(padx=10, pady=10, fill=BOTH)
         text_frame = ttk.LabelFrame(self.root)
         text_frame.pack(padx=10, pady=10, fill=BOTH)
-        item_viewing_frame = ttk.LabelFrame(self.root, text="Create Item")
+        item_viewing_frame = ttk.LabelFrame(self.root, text="Create Item", width=400, height=200)
         item_viewing_frame.pack(padx=10, pady=10, fill=BOTH)
+        item_viewing_frame.pack_propagate(False)  # Prevent the frame from resizing to fit its content
+        item_tweaking_frame = ttk.LabelFrame(self.root, text="Edit Item")
+        item_tweaking_frame.pack(padx=10, pady=10, fill=BOTH)
         item_form_creation_frame = ttk.LabelFrame(self.root, text="Item Management")
         item_form_creation_frame.pack(padx=10, pady=10, fill=BOTH)
 
@@ -282,6 +287,28 @@ class ItemPage:
         scrollbar.pack(side="right", fill="y")
         self.update_item_list()  # Initial population of the item list
 
+        #item tweaking label
+        item_tweaking_label = ttk.Label(item_tweaking_frame, text="Edit or delete your items here WARNING THIS IS NOT COUNTING TOWARDS YOUR PROGRESS: \n to edit an select it, then write the new name and description in the boxes below and click edit. to delete an item select it, then click delete.")
+        item_tweaking_label.pack(anchor=W, padx=10, pady=5)
+
+        # item selection dropdown
+        self.item_editing_combobox = ttk.Combobox(item_tweaking_frame, state="readonly")
+        rows = functions.get_item_list(self.conn)
+        item_name = []
+        for row in rows:
+            item_name.append(row[1])
+        self.item_editing_combobox['values'] = item_name
+        self.item_editing_combobox.set("Select an item you want to edit or delete")
+        self.item_editing_combobox.pack(padx=10, pady=10, fill=BOTH)
+
+        # Edit Item button
+        self.edit_item_button = ttk.Button(item_tweaking_frame, text="Edit Item", command=self.edit_item_button)
+        self.edit_item_button.pack(padx=10, pady=10, fill=BOTH)
+
+        # Delete Item button
+        self.delete_item_button = ttk.Button(item_tweaking_frame, text="Delete Item", command=self.delete_item_button)
+        self.delete_item_button.pack(padx=10, pady=10, fill=BOTH)
+
     def update_item_list(self):
         # calls scrollable frame AS NOT A FUNCTION, but a variable. clears the frame 
         for widget in self.scrollable_frame.winfo_children():
@@ -315,6 +342,30 @@ class ItemPage:
         self.item_name_entry.delete(0, END)
         self.item_description_entry.delete(0, END)
         # update the item list
+        self.update_item_list()
+
+    def edit_item_button(self):
+        selected_item_name = self.item_editing_combobox.get()
+        new_name = self.item_name_entry.get()
+        new_description = self.item_description_entry.get()
+        item_id = functions.get_item_id_by_name(self.conn, selected_item_name)
+        if item_id and functions.update_item(self.conn, item_id, new_name, new_description):
+            messagebox.showinfo("Item Edited", f"Item '{selected_item_name}' has been edited successfully.")
+        else:
+            messagebox.showerror("Item Not Edited", "Failed to edit item. Please try again.")
+        self.item_name_entry.delete(0, END)
+        self.item_description_entry.delete(0, END)
+        self.update_item_list()
+
+    def delete_item_button(self):
+        selected_item_name = self.item_editing_combobox.get()
+        item_id = functions.get_item_id_by_name(self.conn, selected_item_name)
+        if item_id and functions.delete_item(self.conn, item_id):
+            messagebox.showinfo("Item Deleted", f"Item '{selected_item_name}' has been deleted successfully.")
+        else:
+            messagebox.showerror("Item Not Deleted", "Failed to delete item. Please try again.")
+        self.item_name_entry.delete(0, END)
+        self.item_description_entry.delete(0, END)
         self.update_item_list()
 
     def run(self):
@@ -422,7 +473,6 @@ class NextStepsPage:
         self.conn = conn
         self.username = username
         self.root.title("Next Steps Page")
-        self.root.geometry("600x800")
         self.root.resizable(False, False)
         self.create_widgets()
 
@@ -449,9 +499,20 @@ class NextStepsPage:
         subtitle_label = ttk.Label(title_frame, text=f"{self.username}'s Next Steps!", font=("Arial", 15))
         subtitle_label.pack(anchor=CENTER, padx=5, pady=5)
 
-        # test to see if the ai function works THIS WILL BE CHANGED LATER
-        ai_button = ttk.Button(next_steps_frame, text="Get Next Steps", command=self.ai_next_steps_button)
-        ai_button.pack(padx=10, pady=10, fill=BOTH)
+        # prediction text label
+        predictions_text = ttk.Label(next_steps_frame, text="Here you can find the predicted next steps for what you should do with your items!")
+        predictions_text.font=("Arial", 12)
+        predictions_text.pack(anchor=CENTER, padx=5, pady=5)
+        button_intro_text = ttk.Label(next_steps_frame, text="Click the button below to get your next steps!")
+        button_intro_text.font=("Arial", 12)
+
+        # prediction display button
+        prediction_button = ttk.Button(next_steps_frame, text="Get Next Steps", command=self.ai_next_steps_button)
+        prediction_button.pack(padx=10, pady=10, fill=BOTH)
+
+        # label to display the prediction result
+        self.prediction_display = Text(next_steps_frame, height=10, width=60, wrap="word")
+        self.prediction_display.pack(padx=10, pady=10)
 
         # map widget for helpful locations
         # map label
@@ -463,21 +524,23 @@ class NextStepsPage:
         local_map.set_position(-36.852095, 174.763180)
         local_map.set_zoom(10)
         suitable_places = ['donation center', 'recycling center', 'thrift store', 'landfill', 'charity shop']
-        for i in suitable_places:
-            functions.search_nearby_places(i, -36.852095, 174.763180)
+        for place in suitable_places:
+            found_places = functions.search_nearby_places(place, -36.852095, 174.763180)
+            for result in found_places:
+                local_map.set_marker(result['lat'], result['lon'], text=result['name'])
 
-        
-
-        """
-        # map that shows the location of nearby useful stores / places to help dispose of your items.
-        local_map = tkintermapview.TkinterMapView(body_frame, width=600, height=400, corner_radius=0)
-        local_map.grid(row=1, column=0, padx=10, pady=10, sticky="NSEW")    
-        local_map.set_position(-36.852095, 174.763180)
-        local_map.set_zoom(10)
-        """
+    def return_to_main_button(self):
+        # Return to the main page
+        self.root.destroy()
+        MainPage(self.conn, self.username).run()
 
     def ai_next_steps_button(self):
-        functions.ai_predicted_next_steps(self.conn)
+        predictions = functions.ai_predicted_next_steps(self.conn)
+        self.prediction_display.delete("1.0", END)
+        if not predictions:
+            self.prediction_display.insert(END, "No predictions available.\n")
+            return
+        self.prediction_display.insert(END, predictions)
 
     def run(self):
         self.root.mainloop()
