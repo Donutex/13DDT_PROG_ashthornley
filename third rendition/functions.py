@@ -164,19 +164,19 @@ def ai_predicted_next_steps(conn):
 
 # map functions for donation locations etc
 def search_nearby_places(query, latitude, longitude, limit=5):
-    geolocator = Nominatim(user_agent="like_a_knife_through_clutter_app")
+    geolocator = Nominatim(user_agent="clutter_app")
     location = geolocator.reverse(f"{latitude}, {longitude}", exactly_one=True)
-    places = []
-    #if the location is found and it has an address...
+    city = ""
     if location and "address" in location.raw:
         city = location.raw["address"].get("city", "")
-        results = geolocator.geocode(f"{query}, {city}", exactly_one=False, limit=limit)
-        if results:
-            for result in results:
-                places.append({
-                    "name": result.address,
-                    "lat": result.latitude,
-                    "lon": result.longitude
-                })
+    results = geolocator.geocode(f"{query} near {city}", exactly_one=False, limit=limit)
+    places = []
+    if results:
+        for result in results:
+            places.append({
+                "name": result.address,
+                "lat": result.latitude,
+                "lon": result.longitude
+            })
     return places
 
