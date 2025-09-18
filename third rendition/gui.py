@@ -522,11 +522,22 @@ class NextStepsPage:
         local_map = tkintermapview.TkinterMapView(helpful_locations_frame, width=600, height=400, corner_radius=0)
         local_map.pack(padx=10, pady=10)
         local_map.set_position(-36.852095, 174.763180)
-        local_map.set_zoom(10)
-        suitable_places = ['donation center', 'recycling center', 'thrift store', 'landfill', 'charity shop']
+        local_map.set_zoom(8)
+        suitable_places = [
+            'donation bins', 
+            'op shops', 'salvation army', 'red cross', 'SPCA op shop',
+            'thrift store', 'habitat for humanity', 'city mission',
+            'landfill', 'council waste disposal', 'recycling center',
+            'charity shop'
+            ]
         for place in suitable_places:
             found_places = functions.search_nearby_places(place, -36.852095, 174.763180)
+            found_places_howick = functions.search_nearby_places(place, -36.8944, 174.9322)
             for result in found_places:
+                print(result['lat'], result['lon'])
+                local_map.set_marker(result['lat'], result['lon'], text=result['name'])
+            for result in found_places_howick:
+                print(result['lat'], result['lon'])
                 local_map.set_marker(result['lat'], result['lon'], text=result['name'])
 
     def return_to_main_button(self):

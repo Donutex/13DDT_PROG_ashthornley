@@ -1,0 +1,122 @@
+import customtkinter as ctk
+from tkinter import messagebox
+import functions
+ctk.set_default_color_theme("forth rendition/theme.json")
+
+class ProgressPage:
+    def __init__(self, conn, username):
+        self.conn = conn
+        self.username = username
+        self.root = ctk.CTk()
+        self.root.title("Progress")
+        self.root.geometry("600x800")
+        self.root.resizable(False, False)
+        self.progress = None
+        self.decluttering_combobox = None
+        self._create_widgets()
+
+    def _create_widgets(self):
+        # =========== Frames (CTkFrame instead of LabelFrame) ===========
+        title_frame = ctk.CTkFrame(self.root)
+        title_frame.pack(padx=10, pady=10, fill="x")
+
+        body_frame = ctk.CTkFrame(self.root)
+        body_frame.pack(padx=10, pady=10, fill="both", expand=True)
+
+        text_frame = ctk.CTkFrame(body_frame)
+        text_frame.pack(padx=10, pady=10, fill="x")
+
+        progress_bar_frame = ctk.CTkFrame(body_frame)
+        progress_bar_frame.pack(padx=10, pady=10, fill="x")
+
+        decluttering_frame = ctk.CTkFrame(body_frame)
+        decluttering_frame.pack(padx=10, pady=10, fill="x")
+
+        # =========== Title Area ===========
+        ctk.CTkButton(
+            title_frame, text="← Back to Main Page", command=self._return_to_main
+        ).pack(side="left", padx=10, pady=5)
+
+        ctk.CTkLabel(
+            title_frame, text="Like A Knife Through Clutter", font=("Papyrus", 24)
+        ).pack(side="right", padx=10, pady=5)
+
+        ctk.CTkLabel(
+            title_frame, text=f"{self.username}'s Progress!", font=("Arial", 15)
+        ).pack(anchor="center", padx=5, pady=5)
+
+        # =========== Progress Info ===========
+        ctk.CTkLabel(
+            text_frame,
+            text="This is the progress page of 'Like A Knife Through Clutter' where you can view "
+                 "your progress and log decluttering that you have done.",
+            wraplength=500,
+        ).pack(anchor="center", padx=5, pady=5)
+
+        # =========== Progress Bar ===========
+        ctk.CTkLabel(progress_bar_frame, text="Your progress will be displayed here:").pack(
+            anchor="center", padx=5, pady=5
+        )
+
+        self.progress = ctk.CTkProgressBar(progress_bar_frame, width=400)
+        self.progress.pack(padx=10, pady=10)
+        self.progress_text_label = ctk.CTkLabel(progress_bar_frame, text="")
+        self.progress_text_label.pack(padx=10, pady=(0, 10))
+
+        self._update_progress_bar()  # initial update
+
+        # =========== Decluttering ===========
+        ctk.CTkLabel(decluttering_frame, text="Log your decluttering here:").pack(
+            anchor="center", padx=5, pady=5
+        )
+
+        item_names = [row[1] for row in functions.get_item_list(self.conn)]
+        self.decluttering_combobox = ctk.CTkOptionMenu(
+            decluttering_frame, values=item_names, width=400
+        )
+        self.decluttering_combobox.set("Select an item you have decluttered")
+        self.decluttering_combobox.pack(padx=10, pady=10, fill="x")
+
+        ctk.CTkButton(
+            decluttering_frame, text="Log Decluttering", command=self._log_decluttering
+        ).pack(padx=10, pady=10, fill="x")
+
+    # ---------- Logic ----------
+    def _log_decluttering(self):
+        item_name = self.decluttering_combobox.get()
+        item_id = functions.get_item_id_by_name(self.conn, item_name)
+
+        if item_id:
+            functions.declutter_item(self.conn, item_id)
+            functions.log_declutter(self.conn, self.username, item_name, item_id)
+            self._update_progress_bar()
+            messagebox.showinfo(title="Decluttering Logged", message="Your decluttering has been logged successfully.")
+        else:
+            messagebox.showerror(title="Decluttering Not Logged", message="Failed to log decluttering. Please try again.")
+
+        self.decluttering_combobox.set("Select an item you have decluttered")
+
+    def _update_progress_bar(self):
+        milestone = 25
+        count = functions.get_declutter_count(self.conn, self.username)
+        progress_percent = (count / milestone)
+        self.progress.set(progress_percent)
+
+        # Update progress text
+        self.progress_text_label.configure(
+            text=f"Items Decluttered: {count} out of the {milestone} item milestone!"
+        )
+
+        if count >= milestone:
+            messagebox.showinfo(
+                title="Milestone Reached!",
+                message="Congratulations! You are doing great—keep up the good work!"
+            )
+
+    def _return_to_main(self):
+        self.root.destroy()
+        from MainPage import MainPage
+        MainPage(self.conn, self.username).run()
+
+    def run(self):
+        self.root.mainloop()

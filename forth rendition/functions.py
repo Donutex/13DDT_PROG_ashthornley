@@ -4,6 +4,7 @@ from tkinter import *
 from tkinter import ttk 
 from openai import OpenAI
 from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderUnavailable
 import dotenv
 import os
 
@@ -17,7 +18,7 @@ api_key = os.getenv("API_KEY")
 def create_item_table(conn):
     cursor = conn.cursor()
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS items1 (s
+    CREATE TABLE IF NOT EXISTS items4 (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         description TEXT NOT NULL
@@ -28,7 +29,7 @@ def create_item_table(conn):
 def create_login_table(conn):
     cursor = conn.cursor()
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS login1 (
+    CREATE TABLE IF NOT EXISTS login4 (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL,
         password TEXT NOT NULL
@@ -39,7 +40,7 @@ def create_login_table(conn):
 def create_declutter_log_table(conn):
     cursor = conn.cursor()
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS decluttering_log1 (
+    CREATE TABLE IF NOT EXISTS decluttering_log4 (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL,
         item_id INTEGER NOT NULL,
@@ -55,14 +56,14 @@ def create_login(conn, username, password):
     cursor = conn.cursor()
     # this scrambles the password up using an algorithm called argon2
     hashed_password = PasswordHasher().hash(password)
-    cursor.execute("INSERT INTO login1 (username, password) VALUES (?, ?)", (username, hashed_password))
+    cursor.execute("INSERT INTO login4 (username, password) VALUES (?, ?)", (username, hashed_password))
     conn.commit()
 
 # this function checks to see if the user exists in the login info table
 # it finds the user by their username, then it takes the corresponding hashed password and compares it to the password they entered
 def check_login(conn, username, password):
     cursor = conn.cursor()
-    cursor.execute("SELECT password FROM login1 WHERE username = ?", (username,))
+    cursor.execute("SELECT password FROM login4 WHERE username = ?", (username,))
     user = cursor.fetchone()
     if user is None:
         messagebox.showerror("Login Failed", "Incorrect username or password. Please try again or sign up.")
@@ -76,37 +77,37 @@ def check_login(conn, username, password):
 # item sql functions
 def add_item(conn, name, description):
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO items1 (name, description) VALUES (?, ?)", (name, description))
+    cursor.execute("INSERT INTO items4 (name, description) VALUES (?, ?)", (name, description))
     conn.commit()
     return True
 
 def remove_item(conn, item_id):
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM items1 WHERE id = ?", (item_id,))
+    cursor.execute("DELETE FROM items4 WHERE id = ?", (item_id,))
     conn.commit()
     return True
 
 def declutter_item(conn, item_id):
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM items1 WHERE id = ?", (item_id,))
+    cursor.execute("DELETE FROM items4 WHERE id = ?", (item_id,))
     conn.commit()
     return True
 
 def update_item(conn, item_id, new_name, new_description):
     cursor = conn.cursor()
-    cursor.execute("UPDATE items1 SET name = ?, description = ? WHERE id = ?", (new_name, new_description, item_id))
+    cursor.execute("UPDATE items4 SET name = ?, description = ? WHERE id = ?", (new_name, new_description, item_id))
     conn.commit()
     return True
 
 def get_item_list(conn):
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM items1")
+    cursor.execute("SELECT * FROM items4")
     rows = cursor.fetchall()
     return rows
 
 def get_item_id_by_name(conn, name):
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM items1 WHERE name = ?", (name,))
+    cursor.execute("SELECT id FROM items4 WHERE name = ?", (name,))
     row = cursor.fetchone()
     if row:
         return row[0]
@@ -116,19 +117,17 @@ def get_item_id_by_name(conn, name):
 # milestone bar functions
 def log_declutter(conn, username, item_name, item_id):
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO decluttering_log1 (username, item_name, item_id) VALUES (?, ?, ?)", (username, item_name, item_id))
+    cursor.execute("INSERT INTO decluttering_log4 (username, item_name, item_id) VALUES (?, ?, ?)", (username, item_name, item_id))
     conn.commit()
 
 def get_declutter_count(conn, username):
     cursor =  conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM decluttering_log1 WHERE username = ?", (username,))
+    cursor.execute("SELECT COUNT(*) FROM decluttering_log4 WHERE username = ?", (username,))
     count = cursor.fetchone()[0]
     return count
 
 # ai functions for next steps
-def ai_predicted_next_steps(conn):
-    item_list = []
-    item_list = get_item_list(conn)
+def ai_predicted_next_steps(item_list):
 
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
@@ -162,21 +161,26 @@ def ai_predicted_next_steps(conn):
     print(result)
     return result
 
-# map functions for donation locations etc
-def search_nearby_places(query, latitude, longitude, limit=5):
-    geolocator = Nominatim(user_agent="clutter_app")
-    location = geolocator.reverse(f"{latitude}, {longitude}", exactly_one=True)
-    city = ""
-    if location and "address" in location.raw:
-        city = location.raw["address"].get("city", "")
-    results = geolocator.geocode(f"{query} near {city}", exactly_one=False, limit=limit)
-    places = []
-    if results:
-        for result in results:
-            places.append({
-                "name": result.address,
-                "lat": result.latitude,
-                "lon": result.longitude
-            })
-    return places
 
+# map functions for donation locations etc
+def search_nearby_places(query, latitude, longitude, limit=2):
+    geolocator = Nominatim(user_agent="clutter_app")
+    try:
+        location = geolocator.reverse(f"{latitude}, {longitude}", exactly_one=True, timeout=10)
+        city = ""
+        if location and "address" in location.raw:
+            #city = location.raw["address"].get("city", "")
+            city = 'Auckland'
+        results = geolocator.geocode(f"{query} near {city}", exactly_one=False, limit=limit, timeout=10)
+        places = []
+        if results:
+            for result in results:
+                places.append({
+                    "name": result.address,
+                    "lat": result.latitude,
+                    "lon": result.longitude
+                })
+        return places
+    except GeocoderUnavailable:
+        messagebox.showerror("Error", "Geocoding service is unavailable. Please try again later.")
+        return []
