@@ -9,6 +9,7 @@
         "deculttering",
         "deepseek",
         "dotenv",
+        "entrys",
         "Geocoder",
         "geocoders",
         "geolocator",
@@ -25,5 +26,10 @@
         "unhides",
         "wraplength",
         "yscrollcommand"
-    ]
+    ],
+
+    "editor.rulers": [
+        { "column": 80, "color": "#ff4081" }
+    ],
 }
+

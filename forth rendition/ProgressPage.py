@@ -1,3 +1,9 @@
+"""This is the progress page.
+
+This page allows users to view their decluttering progress via a progress bar
+keeping track of a 25 item milestone and more importantly, log decluttering
+that they have done by selecting an item from a dropdown menu.
+"""
 import customtkinter as ctk
 from tkinter import messagebox
 import functions
@@ -5,6 +11,17 @@ ctk.set_default_color_theme("forth rendition/theme.json")
 
 class ProgressPage:
     def __init__(self, conn, username):
+        """necessary initialization for the Progress page.
+
+        this part runs immediately when a new ProgressPage object is created.
+        it sets up the database connection (self.conn), remembers who the user
+        is (self.username), sets up the window(self.root), prevents attribute
+        errors for the progress and decluttering_combobox attributes, and calls
+        the method to create the widgets create_widgets()
+
+        Args:
+            conn (SQLite3 Connection): The database connection object.
+        """
         self.conn = conn
         self.username = username
         self.root = ctk.CTk()
@@ -16,6 +33,8 @@ class ProgressPage:
         self._create_widgets()
 
     def _create_widgets(self):
+        """Create the widgets for the Progress page.
+        """
         # =========== Frames (CTkFrame instead of LabelFrame) ===========
         title_frame = ctk.CTkFrame(self.root)
         title_frame.pack(padx=10, pady=10, fill="x")
@@ -83,6 +102,17 @@ class ProgressPage:
 
     # ---------- Logic ----------
     def _log_decluttering(self):
+        """Log the decluttering action.
+
+        This method retrieves the selected item from the combobox, and gets the
+        corresponding item ID from the database using the function
+        functions.get_item_id_by_name(). If the item ID is found, it calls
+        functions.declutter_item() and functions.log_declutter() to mark the
+        item as decluttered in the database and remove it from the users items.
+        It then updates the progress bar and shows a success message. If the
+        item ID is not found, it shows an error message. Then the combobox 
+        resets to the default prompt.
+        """
         item_name = self.decluttering_combobox.get()
         item_id = functions.get_item_id_by_name(self.conn, item_name)
 
@@ -97,6 +127,14 @@ class ProgressPage:
         self.decluttering_combobox.set("Select an item you have decluttered")
 
     def _update_progress_bar(self):
+        """Update the progress bar based on the user's decluttering progress.
+
+        This method fetches the number of items the user has decluttered using 
+        functions.get_declutter_count(). It calculates the progress towards a 
+        25 item milestone and updates the progress bar and text label. If the
+        user has reached or exceeded the milestone, it shows a congratulatory
+        message.
+        """
         milestone = 25
         count = functions.get_declutter_count(self.conn, self.username)
         progress_percent = (count / milestone)
@@ -110,13 +148,18 @@ class ProgressPage:
         if count >= milestone:
             messagebox.showinfo(
                 title="Milestone Reached!",
-                message="Congratulations! You are doing great—keep up the good work!"
+                message="Congratulations! You are doing great, keep up the good work!"
             )
+            # ADD A RESET BUTTON OR SOMETHING TO RESET THE COUNT IF THEY WANT TO DO ANOTHER MILESTONE
 
     def _return_to_main(self):
+        """Return to the main page.
+        """
         self.root.destroy()
         from MainPage import MainPage
         MainPage(self.conn, self.username).run()
 
     def run(self):
+        """Run the main loop of the Progress Page.
+        """
         self.root.mainloop()
