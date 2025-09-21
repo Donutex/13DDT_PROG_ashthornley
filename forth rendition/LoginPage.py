@@ -1,9 +1,9 @@
 """the login page file that runs the login page.
 
-this file has a LoginPage class that creates the login page, the page is the 
-classes object, and the functions needed to make the page work are the class's
-methods. the page is created using customtkinter to make it look modern 
-and cool (similar to all the other pages). the page leads to the main page 
+this file has a LoginPage class that creates the login page, the page is the
+class's object, and the functions needed to make the page work are the class's
+methods. the page is created using customtkinter to make it look modern
+and cool (similar to all the other pages). the page leads to the main page
 if the login is successful, or to the sign-up page if the user does not have an
 account.
 """
@@ -13,22 +13,24 @@ import functions
 from MainPage import MainPage
 from SignUpPage import SignUpPage
 
-# setting the theme for the customtkinter, using a json file 
+# setting the theme for the customtkinter, using a json file
 ctk.set_default_color_theme("forth rendition/theme.json")
 
-class LoginPage:
-    def __init__(self, conn):
-        """necessary initialization for the login page.
 
-        this part runs immediately when a new LoginPage object is created.
-        it sets up the database connection (self.conn), the window(self.root),
+class LoginPage:
+    """Login page of the application."""
+    def __init__(self, conn):
+        """Necessary initialization for the login page.
+
+        This part runs immediately when a new LoginPage object is created.
+        It sets up the database connection (self.conn), the window(self.root),
         and calls the method to create the widgets create_widgets()
 
         Args:
             conn (SQLite3 Connection): The database connection object.
         """
         self.conn = conn
-        self.root = ctk.CTk()  
+        self.root = ctk.CTk()
         self.root.title("Login Page")
         self.root.geometry("600x570")
         self.root.resizable(False, False)
@@ -36,8 +38,8 @@ class LoginPage:
 
 
     def create_widgets(self):
-        """Create the widgets for the login page.
-        """
+        """Create the widgets for the login page."""
+        # Login frame and a title for it, imitating a TTK LabelFrame
         self.login_frame = ctk.CTkFrame(self.root, corner_radius=10)
         self.login_frame.pack(padx=20, pady=20, fill="both")
 
@@ -48,10 +50,22 @@ class LoginPage:
         )
         self.login_label.pack(pady=(10, 5))
 
+        # Sign up frame with the same title style
+        self.signup_frame = ctk.CTkFrame(self.root, corner_radius=10)
+        self.signup_frame.pack(padx=20, pady=20, fill="both")
+
+        self.signup_label = ctk.CTkLabel(
+            self.signup_frame,
+            text="Sign Up",
+            font=("Arial", 18, "bold")
+        )
+        self.signup_label.pack(pady=(10, 5))
+
+        # Title and subtitle labels
         self.title_label = ctk.CTkLabel(
             self.login_frame,
             text="Like A Knife Through Clutter",
-            font=("Arial", 16)
+            font=("Arial", 18, "bold")
         )
         self.title_label.pack(padx=10, pady=10)
 
@@ -82,16 +96,7 @@ class LoginPage:
         )
         self.login_button.pack(padx=10, pady=10)
 
-        self.signup_frame = ctk.CTkFrame(self.root, corner_radius=10)
-        self.signup_frame.pack(padx=20, pady=20, fill="both")
-
-        self.signup_label = ctk.CTkLabel(
-            self.signup_frame,
-            text="Sign Up",
-            font=("Arial", 18, "bold")
-        )
-        self.signup_label.pack(pady=(10, 5))
-
+        # Sign up subtitle
         self.signup_subtitle_label = ctk.CTkLabel(
             self.signup_frame,
             text="Don't have an account? Sign up here",
@@ -113,13 +118,12 @@ class LoginPage:
 
         this method is called when the login button is pressed. is looks at the
         entrys for the username and passwords then checks if they are correct
-        using the functions.check_login function. if the login is successful, 
+        using the functions.check_login function. if the login is successful,
         the main page opens, if not an error message is shown and the entrys
         are cleared. so the user can try again.
         """
         self.username = self.username_entry.get()
         self.password = self.password_entry.get()
-        # Assuming functions.check_login exists
         if functions.check_login(self.conn, self.username, self.password):
             self.root.destroy()
             MainPage(self.conn, self.username).run()
@@ -133,13 +137,11 @@ class LoginPage:
 
 
     def signup_page_button(self):
-        """Handle the sign-up button action.
-        """
+        """Handle the sign-up button action."""
         self.root.destroy()
         SignUpPage(self.conn).run()
 
-    def run(self):
-        """Start the main loop for itself.
-        """
-        self.root.mainloop()
 
+    def run(self):
+        """Start the main loop for itself."""
+        self.root.mainloop()

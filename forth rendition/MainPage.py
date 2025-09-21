@@ -1,21 +1,22 @@
 """This is the main page.
 
-This page allows users to navigate to different sections of 'Like A Knife 
+This page allows users to navigate to different sections of 'Like A Knife
 Through Clutter'. Users can view and manage their items, track their
 decluttering progress, and see AI-predicted next steps for their items from
-this page. 
+this page.
 """
 import customtkinter as ctk
-from tkinter import messagebox, END
-import threading 
+
 ctk.set_default_color_theme("forth rendition/theme.json")
 
-class MainPage:
-    def __init__(self, conn, username):
-        """necessary initialization for the Main page.
 
-        this part runs immediately when a new MainPage object is created.
-        it sets up the database connection (self.conn), remembers who the user
+class MainPage:
+    """Main page of the application."""
+    def __init__(self, conn, username):
+        """Necessary initialization for the Main page.
+
+        This part runs immediately when a new MainPage object is created.
+        It sets up the database connection (self.conn), remembers who the user
         is (self.username), sets up the window(self.root),and calls the method
         to create the widgets create_widgets()
 
@@ -24,16 +25,16 @@ class MainPage:
         """
         self.conn = conn
         self.username = username
-        self.root = ctk.CTk()  # CustomTkinter window
+        self.root = ctk.CTk() 
         self.root.title("Main Page")
         self.root.geometry("600x800")
         self.root.resizable(False, False)
         self.create_widgets()
 
+
     def create_widgets(self):
-        """Create the widgets for the main page.
-        """
-        # frames for the page (LabelFrames emulated with CTkFrame + labels inside)
+        """Create the widgets for the main page."""
+        # frames for the page layout
         title_frame = ctk.CTkFrame(self.root, corner_radius=10)
         title_frame.pack(padx=10, pady=10, fill="x")
 
@@ -81,13 +82,14 @@ class MainPage:
         )
         body_text.pack(anchor="center", padx=5, pady=5)
 
-        # view items section
+        # item page introduction
         view_items_label = ctk.CTkLabel(
-            items_frame, 
+            items_frame,
             text="View or enter your items here:"
         )
         view_items_label.pack(anchor="center", padx=5, pady=5)
 
+        # item page button to show the item page
         view_items_button = ctk.CTkButton(
             items_frame,
             text="View Items",
@@ -95,21 +97,22 @@ class MainPage:
         )
         view_items_button.pack(anchor="center", padx=5, pady=5)
 
-        # progress section
+        # progress page introduction
         progress_label = ctk.CTkLabel(
             progress_frame,
             text="Your progress will be displayed here."
         )
         progress_label.pack(anchor="center", padx=5, pady=5)
 
+        # progress button to show the progress page
         progress_button = ctk.CTkButton(
-            progress_frame, 
-            text="View Progress", 
+            progress_frame,
+            text="View Progress",
             command=self.view_progress_button
         )
         progress_button.pack(anchor="center", padx=5, pady=5)
 
-        # next steps section
+        # next steps page introduction
         next_steps_label = ctk.CTkLabel(
             next_steps_frame,
             text="Your next steps will be displayed here."
@@ -117,35 +120,36 @@ class MainPage:
         )
         next_steps_label.pack(anchor="center", padx=5, pady=5)
 
+        # next steps button to show the next steps page
         next_steps_button = ctk.CTkButton(
-            next_steps_frame, 
-            text="View Next Steps", 
+            next_steps_frame,
+            text="View Next Steps",
             command=self.view_next_steps_button
         )
         next_steps_button.pack(anchor="center", padx=5, pady=5)
 
+
     def view_items_button(self):
-        """View the items page.
-        """
+        """View the items page."""
         self.root.destroy()
         from ItemPage import ItemPage
         ItemPage(self.conn, self.username).run()
 
+
     def view_progress_button(self):
-        """View the progress page.
-        """
+        """View the progress page."""
         self.root.destroy()
         from ProgressPage import ProgressPage
         ProgressPage(self.conn, self.username).run()
 
+
     def view_next_steps_button(self):
-        """View the next steps page.
-        """
+        """View the next steps page."""
         self.root.destroy()
         from NextStepsPage import NextStepsPage
         NextStepsPage(self.conn, self.username).run()
 
+
     def run(self):
-        """Run the main loop of the application.
-        """
+        """Run the main loop of the application."""
         self.root.mainloop()

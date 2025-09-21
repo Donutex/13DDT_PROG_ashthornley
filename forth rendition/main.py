@@ -7,6 +7,7 @@ from LoginPage import LoginPage
 import functions
 import sqlite3
 
+# setting up the database connection, this connection is passed to each page
 conn = sqlite3.connect('forth rendition/Like_A_Knife_Through_Clutter4.db')
 cursor = conn.cursor()
 

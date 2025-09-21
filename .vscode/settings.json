@@ -1,5 +1,7 @@
 {
     "cSpell.words": [
+        "ashthornley",
+        "cffi",
         "checkmark",
         "columnspan",
         "customtkinter",
@@ -10,11 +12,13 @@
         "deepseek",
         "dotenv",
         "entrys",
+        "Enviromental",
         "Geocoder",
         "geocoders",
         "geolocator",
         "Howick",
         "Mellons",
+        "messagebox",
         "Nominatim",
         "padx",
         "pady",

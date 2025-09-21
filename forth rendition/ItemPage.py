@@ -9,12 +9,14 @@ from tkinter import messagebox, END
 import functions
 ctk.set_default_color_theme("forth rendition/theme.json")
 
-class ItemPage:
-    def __init__(self, conn, username):
-        """necessary initialization for the Item page.
 
-        this part runs immediately when a new ItemPage object is created.
-        it sets up the database connection (self.conn), remembers who the user
+class ItemPage:
+    """Item page of the application."""
+    def __init__(self, conn, username):
+        """Necessary initialization for the Item page.
+
+        This part runs immediately when a new ItemPage object is created.
+        It sets up the database connection (self.conn), remembers who the user
         is (self.username), sets up the window(self.root),and calls the method
         to create the widgets create_widgets()
 
@@ -28,10 +30,10 @@ class ItemPage:
         self.root.resizable(True, True)
         self.create_widgets()
 
+
     def create_widgets(self):
-        """Create the widgets for the item page.
-        """
-        # Frames for the page (LabelFrames emulated with CTkFrame + header label)
+        """Create the widgets for the item page."""
+        # Frames for the page 
         title_frame = ctk.CTkFrame(self.root, corner_radius=10)
         title_frame.pack(padx=10, pady=10, fill="x")
 
@@ -59,11 +61,11 @@ class ItemPage:
         title_label = ctk.CTkLabel(
             title_frame,
             text="Like A Knife Through Clutter",
-            font=("Papyrus", 24)
+            font=("Papyrus", 24) # CHANGE THIS
         )
         title_label.pack(anchor="e", padx=10, pady=5)
 
-        # Subtitle label
+        # Subtitle label using users name
         subtitle_label = ctk.CTkLabel(
             title_frame,
             text=f"{self.username}'s items",
@@ -86,13 +88,13 @@ class ItemPage:
 
         # Item name label and entry
         self.item_name_label = ctk.CTkLabel(
-            item_form_creation_frame, 
+            item_form_creation_frame,
             text="Item Name:"
         )
         self.item_name_label.pack(anchor="center", padx=10, pady=5)
 
         self.item_name_entry = ctk.CTkEntry(
-            item_form_creation_frame, 
+            item_form_creation_frame,
             width=400,
             placeholder_text="Enter item name"
         )
@@ -122,15 +124,15 @@ class ItemPage:
 
         # Item management label
         item_management_label = ctk.CTkLabel(
-            item_viewing_frame, 
+            item_viewing_frame,
             text="View your items here:"
         )
         item_management_label.pack(anchor="w", padx=10, pady=5)
 
         # Scrollable area for items
         self.scrollable_frame = ctk.CTkScrollableFrame(
-            item_viewing_frame, 
-            width=600, 
+            item_viewing_frame,
+            width=600,
             height=200
         )
         self.scrollable_frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -147,7 +149,7 @@ class ItemPage:
         )
         item_tweaking_label.pack(anchor="w", padx=10, pady=5)
 
-        # Item selection dropdown (CustomTkinter OptionMenu)
+        # Item selection dropdown
         rows = functions.get_item_list(self.conn)
         item_name = [row[1] for row in rows]
         self.selected_item = ctk.StringVar(
@@ -159,7 +161,8 @@ class ItemPage:
             values=item_name if item_name else ["No items available"]
         )
         self.item_editing_combobox.pack(padx=10, pady=10, fill="x")
-        self.update_item_list()  # initial population
+        # this populates the dropdown menu for when the page is created.
+        self.update_item_list()  
 
         # Edit Item button
         self.edit_item_button_widget = ctk.CTkButton(
@@ -177,6 +180,7 @@ class ItemPage:
         )
         self.delete_item_button_widget.pack(padx=10, pady=10, fill="x")
 
+
     def update_item_list(self):
         """Update the list of items displayed on the item page.
 
@@ -184,7 +188,7 @@ class ItemPage:
         the function functions.get_item_list, and repopulates the display area
         with the updated items. It also refreshes the dropdown menu
         """
-        # Clear current
+        # Clear current list of items
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
@@ -210,20 +214,21 @@ class ItemPage:
         else:
             self.item_editing_combobox.configure(values=["No items available"])
 
+
     def return_to_main_button(self):
-        """Return to the main page.
-        """
+        """Return to the main page."""
         self.root.destroy()
         from MainPage import MainPage
         MainPage(self.conn, self.username).run()
+
 
     def create_item_button(self):
         """Create a new item.
 
         This method retrieves the item name and description from the entrys,
-        then uses the function functions.add_item to add the item to the 
+        then uses the function functions.add_item to add the item to the
         database. If everything works then a success message is shown, if not
-        an error message is shown. then the entrys are cleared and the item 
+        an error message is shown. then the entrys are cleared and the item
         list is updated.
         """
         item_name = self.item_name_entry.get()
@@ -233,20 +238,16 @@ class ItemPage:
                 "Item Created",
                 f"Item '{item_name}' has been created successfully."
             )
-        else:
-            messagebox.showerror(
-                "Item Not Created",
-                "Failed to create item. Please try again."
-            )
         self.item_name_entry.delete(0, END)
         self.item_description_entry.delete(0, END)
         self.update_item_list()
+
 
     def edit_item_button(self):
         """Edit an existing item.
 
         This method retrieves the selected item from the dropdown, and the new
-        name and description from the entrys. it then uses the function 
+        name and description from the entrys. it then uses the function
         functions.get_item_id_by_name to convert the name to an id, and then
         uses the function functions.update_item to update the item in the
         """
@@ -268,33 +269,34 @@ class ItemPage:
         self.item_description_entry.delete(0, END)
         self.update_item_list()
 
+
     def delete_item_button(self):
         """Delete an existing item.
 
         This method retrieves the selected item from the dropdown, then uses
-        the function functions.get_item_id_by_name to convert the name to an 
-        id, and then uses the function functions.remove_item to delete the 
-        item. if everything works then a success message is shown, if not an 
-        error message is shown. then the entrys are cleared and the item list 
+        the function functions.get_item_id_by_name to convert the name to an
+        id, and then uses the function functions.remove_item to delete the
+        item. if everything works then a success message is shown, if not an
+        error message is shown. then the entrys are cleared and the item list
         is updated.
         """
         selected_item_name = self.selected_item.get()
         item_id = functions.get_item_id_by_name(self.conn, selected_item_name)
         if item_id and functions.remove_item(self.conn, item_id):
             messagebox.showinfo(
-                "Item Deleted", 
+                "Item Deleted",
                 f"Item '{selected_item_name}' has been deleted successfully."
             )
         else:
             messagebox.showerror(
-                "Item Not Deleted", 
+                "Item Not Deleted",
                 "Failed to delete item. Please try again."
             )
         self.item_name_entry.delete(0, END)
         self.item_description_entry.delete(0, END)
         self.update_item_list()
 
+
     def run(self):
-        """Start the main loop for itself.
-        """
+        """Start the main loop for itself."""
         self.root.mainloop()

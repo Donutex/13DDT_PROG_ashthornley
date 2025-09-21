@@ -8,13 +8,11 @@ import re
 import messagebox
 from openai import OpenAI
 from geopy.geocoders import Nominatim
-from geopy.exc import GeocoderUnavailable
 import dotenv
 import os
 
 # this loads the .env file to put the key into pythons environment variables
 dotenv.load_dotenv()
-
 # this takes the api key from pythons environment variables
 api_key = os.getenv("API_KEY")
 
@@ -107,7 +105,8 @@ def create_login(conn, username, password):
 
     The password is hashed using the argon2 algorithm for security.
     The function also checks the strength of the password using
-    password_strength_check().
+    password_strength_check(). the username must be unique, if the username
+    already exists, an error message is shown.
 
     Args:
         conn (SQLite3.Connection): The database connection object.
@@ -117,6 +116,15 @@ def create_login(conn, username, password):
     Returns:
         bool: True if the user was created successfully, False otherwise.
     """
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM login4 WHERE username = ?", (username,))
+    if cursor.fetchone() is not None:
+        messagebox.showerror(
+            "User Exists",
+            "Username already taken. Please choose a different username."
+        )
+        return False
+
     if not password_strength_check(password):
         messagebox.showerror(
             "Weak Password",
@@ -127,7 +135,7 @@ def create_login(conn, username, password):
         return False
     else:
         cursor = conn.cursor()
-        # this scrambles the password up using an algorithm called argon2
+        # hashing the password before storing it in the database
         hashed_password = PasswordHasher().hash(password)
         cursor.execute(
             "INSERT INTO login4 (username, password) VALUES (?, ?)",
@@ -155,26 +163,23 @@ def check_login(conn, username, password):
         bool: True if the login is successful, Error msg and False otherwise.
     """
     cursor = conn.cursor()
-    cursor.execute(
-        "SELECT password FROM login4 WHERE username = ?", 
-        (username,)
-    )
+    cursor.execute("SELECT password FROM login4 WHERE username = ?", (username,))
     user = cursor.fetchone()
     if user is None:
         messagebox.showerror(
-            "Login Failed",
+            "Login Failed", 
             "Incorrect username or password. Please try again or sign up."
         )
-        return False #  Login failed
     stored_password = user[0]
-    if PasswordHasher().verify(stored_password, password):
-        return True #  Login successful
-    else:
+    try:
+        PasswordHasher().verify(stored_password, password)
+        return True  # Login successful
+    except:
         messagebox.showerror(
             "Login Failed",
             "Incorrect username or password. Please try again or sign up."
         )
-        return False #  Login failed
+        return False  # Login failed
 
 
 def add_item(conn, name, description):
@@ -191,6 +196,13 @@ def add_item(conn, name, description):
     Returns:
         bool: True if the item was added successfully.
     """
+    if not name or not description:
+        messagebox.showerror(
+            "Missing Fields",
+            "Please enter both item name and description."
+        )
+        return False
+
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO items4 (name, description) VALUES (?, ?)",
@@ -225,7 +237,7 @@ def declutter_item(conn, item_id):
     finds an item in the SQL database (in the items4 table) by its id number
     and removes it from the database. this was created to differentiate between
     removing an item and decluttering an item. (may not be necessary but this
-    allows for more clarity in the code and easier future modifications :) ).
+    allows for more clarity in the code and easier future modifications).
 
     Args:
         conn (SQLite3.Connection): The database connection object.
@@ -256,6 +268,13 @@ def update_item(conn, item_id, new_name, new_description):
     Returns:
         bool: True if the item was updated successfully.
     """
+    if not new_name or not new_description:
+        messagebox.showerror(
+            "Missing Fields",
+            "Please enter both item name and description."
+        )
+        return False
+
     cursor = conn.cursor()
     cursor.execute(
         "UPDATE items4 SET name = ?, description = ? WHERE id = ?",
@@ -405,7 +424,7 @@ def ai_predicted_next_steps(item_names): #  AI FUNCTIONS
     print(result)
     return result
 
-
+# currently not in use, see docstring
 def search_nearby_places(query, latitude, longitude, limit=2): #  MAP FUNCTIONS
     """Search for nearby places based on a query (NOT IN USE).
 
